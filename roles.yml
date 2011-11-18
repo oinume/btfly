@@ -1,0 +1,10 @@
+- web:
+    description: 'web server'
+- master_db:
+    description: 'master database'
+- slave_db:
+    description: 'slave database'
+- memcached:
+    description: 'memcached'
+
+

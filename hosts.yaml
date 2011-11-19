@@ -1,4 +1,14 @@
+roles:
+  - web:
+      description: 'web server'
+  - master_db:
+      description: 'master database'
+  - slave_db:
+      description: 'slave database'
+  - memcached:
+      description: 'memcached'
+hosts:
 # web
-- localhost: { ip: '127.0.0.1', roles: [ 'web', 'master_db' ], status: 'active' }
-- pigg-socket: { ip: '127.0.0.1', roles: [ 'web', 'master_db' ], status: 'active' }
+  - localhost: { ip: '127.0.0.1', roles: [ 'web', 'master_db' ], status: 'active' }
+  - pigg-socket: { ip: '127.0.0.1', roles: [ 'web', 'master_db' ], status: 'active' }
 

@@ -2,3 +2,4 @@ Install
 -------
 
 pip install PyYAML
+pip install argparse

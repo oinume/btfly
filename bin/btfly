@@ -1,0 +1,13 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+import sys
+import btfly_bootstrap
+# Add BTFLY_HOME, BTFLY_HOME/lib to sys.path
+parent, bin_dir = btfly_bootstrap.set_lib_path(__file__)
+
+print sys.path
+import btfly.main
+
+if __name__ == '__main__':
+    sys.exit(btfly.main.Main(__file__, parent).run())

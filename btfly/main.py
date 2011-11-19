@@ -27,14 +27,14 @@ class Main(object):
         )
         default_hosts_conf_path = os.path.join(default_conf_dir, 'hosts.yaml')
         parser.add_argument(
-            '-H', '--hosts', default=default_hosts_conf_path
+            '-H', '--hosts', default=default_hosts_conf_path,
             help='Hosts configuration file path. (default: %s)' % (default_hosts_conf_path)
         )
         parser.add_argument(
             '-r', '--roles', help='Specify roles.'
         )
         parser.add_argument(
-            '-F', '--field', help='Specify a field.'
+            '-f', '--field', help='Specify a field.'
         )
 
         self.file = file
@@ -53,6 +53,8 @@ class Main(object):
             content = '\n'.join(f.readlines())
             hosts = yaml.load(content)
             print hosts
+        # TODO: validation
+        # TODO: json
 
 
 # eval `BTFLY_ENV=production btfly --roles web --field ip env`

@@ -6,7 +6,7 @@ import btfly_bootstrap
 # Add BTFLY_HOME, BTFLY_HOME/lib to sys.path
 parent, bin_dir = btfly_bootstrap.set_lib_path(__file__)
 
-print sys.path
+#print sys.path
 import btfly.main
 
 if __name__ == '__main__':

@@ -1,10 +1,11 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from __future__ import with_statement
 import argparse
 import os
 import yaml
+
+from btfly.conf import ConfLoader
 
 class Main(object):
     def __init__(self, file, home_dir):
@@ -42,19 +43,13 @@ class Main(object):
         self.options = parser.parse_args()
 
     def run(self):
-        conf = {}
-        with open('conf.yaml') as f:
-            content = '\n'.join(f.readlines())
-            conf = yaml.load(content)
-            print conf
+        loader = ConfLoader()
+        conf = loader.load_file(self.options.conf)
+        print conf
 
-        hosts = {}
-        with open('hosts.yaml') as f:
-            content = '\n'.join(f.readlines())
-            hosts = yaml.load(content)
-            print hosts
+        hosts = loader.load_file(self.options.hosts)
+        print hosts
         # TODO: validation
-        # TODO: json
 
 
 # eval `BTFLY_ENV=production btfly --roles web --field ip env`

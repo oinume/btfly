@@ -37,3 +37,7 @@ class ConfLoader(object):
             object = json.loads(string)
         return object
 
+class ConfValidator(object):
+    def validate(conf, hosts_conf, conf_file=None, hosts_conf_file=None):
+        # TODO: implement
+        return ()

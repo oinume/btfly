@@ -3,9 +3,11 @@
 
 import argparse
 import os
+import sys
 import yaml
 
-from btfly.conf import ConfLoader
+from btfly.conf import ConfLoader, ConfValidator
+from btfly.utils import create_logger
 
 class Main(object):
     def __init__(self, file, home_dir):
@@ -28,7 +30,7 @@ class Main(object):
         )
         default_hosts_conf_path = os.path.join(default_conf_dir, 'hosts.yaml')
         parser.add_argument(
-            '-H', '--hosts', default=default_hosts_conf_path,
+            '-H', '--hosts-conf', default=default_hosts_conf_path,
             help='Hosts configuration file path. (default: %s)' % (default_hosts_conf_path)
         )
         parser.add_argument(
@@ -37,20 +39,36 @@ class Main(object):
         parser.add_argument(
             '-f', '--field', help='Specify a field.'
         )
+        parser.add_argument(
+            '-D', '--debug', action='store_true', default=False,
+            help='Enable debug output.',
+        )
 
         self.file = file
         self.arg_parser = parser
-        self.options = parser.parse_args()
+        options = parser.parse_args()
+        self.options = options.__dict__
+        self.log = create_logger(self.options.debug)
 
     def run(self):
         loader = ConfLoader()
-        conf = loader.load_file(self.options.conf)
-        print conf
-
-        hosts = loader.load_file(self.options.hosts)
-        print hosts
+        conf = loader.load_file(self.options['conf'])
+        hosts_conf = loader.load_file(self.options['hosts_conf'])
+        
+        validator = ConfValidator()
+        validation_errors = validator.validate(
+            conf, hosts_conf,
+            self.options['conf'], self.options['hosts_conf']
+        )
         # TODO: validation
-
+        if validation_errors:
+            for e in validation_errors:
+                print >> sys.stderr, e.message
+        
+        target_field = self.options.get('field')
+        if target_field is None:
+            target_field = 'name'
+        # TODO: handle subcommand
 
 # eval `BTFLY_ENV=production btfly --roles web --field ip env`
 # --> btfly_hosts=(127.0.0.1 192.168.1.2)

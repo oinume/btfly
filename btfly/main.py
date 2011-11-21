@@ -2,11 +2,11 @@
 # -*- coding: utf-8 -*-
 
 import argparse
+import imp
 import os
 import sys
-import yaml
 
-from btfly.conf import ConfLoader, ConfValidator
+from btfly.conf import load_conf, ConfValidator
 from btfly.utils import create_logger
 
 class Main(object):
@@ -44,16 +44,16 @@ class Main(object):
             help='Enable debug output.',
         )
 
+        self.home_dir = home_dir
         self.file = file
         self.arg_parser = parser
         options = parser.parse_args()
         self.options = options.__dict__
-        self.log = create_logger(self.options.debug)
+        self.log = create_logger(self.options['debug'])
 
     def run(self):
-        loader = ConfLoader()
-        conf = loader.load_file(self.options['conf'])
-        hosts_conf = loader.load_file(self.options['hosts_conf'])
+        conf = load_conf(self.options['conf'])
+        hosts_conf = load_conf(self.options['hosts_conf'])
         
         validator = ConfValidator()
         validation_errors = validator.validate(
@@ -65,10 +65,37 @@ class Main(object):
             for e in validation_errors:
                 print >> sys.stderr, e.message
         
-        target_field = self.options.get('field')
-        if target_field is None:
-            target_field = 'name'
+        #target_field = self.options.get('field') or 'name'
+        # load subcommands
+        subcommand_plugins_dir = os.path.join(self.home_dir, 'plugins')
         # TODO: handle subcommand
+        subcommand_plugins = self.load_subcommand_plugins(subcommand_plugins_dir)
+        for plugin in subcommand_plugins:
+            subcommands = plugin.define_subcommands()
+            self.log.debug("subcommands = %s" % subcommands)
+
+    def load_module(self, module_name,basepath):
+        """ モジュールをロードして返す
+        """
+        f,n,d = imp.find_module(module_name,[basepath])
+        return imp.load_module(module_name,f,n,d)
+
+    def load_subcommand_plugins(self, base_dir):
+        """ Pluginをロードしてリストにして返す
+        """
+        plugins = []
+        for fdn in os.listdir(base_dir):
+            try:
+                if fdn.endswith(".py"):
+                    m = self.load_module(fdn.replace(".py",""), base_dir)
+                    plugins.append(m)
+                elif os.path.isdir(fdn):
+                    m = self.load_module(fdn)
+                    plugins.append(m)
+            except ImportError:
+                pass
+        return plugins
+    
 
 # eval `BTFLY_ENV=production btfly --roles web --field ip env`
 # --> btfly_hosts=(127.0.0.1 192.168.1.2)
@@ -82,7 +109,7 @@ class Main(object):
 # btfly-rsync pigg_files /usr/local/pigg_files/
 
 # plugin
-# tomahawk_hosts.py
-# def define_plugins():
+# tomahawk.py
+# def define_subcommands():
 #     return [ { 'name': 'tomahawk_hosts', 'class': TomahawkHosts } ]
 #c()

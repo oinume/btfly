@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import os
-from nose.tools import eq_, ok_
+from nose.tools import eq_, ok_, raises
 
 TESTS_DIR = os.path.dirname(os.path.abspath(__file__))
 from btfly.conf import load_conf, YAMLConfLoader, JSONConfLoader
@@ -48,3 +48,7 @@ def test_02_load_json():
 def test_03_load_conf():
     object = load_conf(os.path.join(TESTS_DIR, 'conf.yaml'))
     ok_(object['statuses'], "load_conf")
+
+@raises(ValueError)
+def test_04_load_conf_error():
+    load_conf(os.path.join(TESTS_DIR, 'conf.ini'))

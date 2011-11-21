@@ -1,0 +1,4 @@
+statuses:
+  - active
+environments:
+  - { production: [ 'production', 'product', 'prd' ] }

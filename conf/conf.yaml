@@ -7,3 +7,5 @@ environments:
   - { production: [ 'production', 'product', 'prd' ] }
   - { staging: [ 'staging', 'stg', 'test' ] }
   - { development: [ 'development', 'dev' ] }
+plugin_dirs:
+  - 'plugins'

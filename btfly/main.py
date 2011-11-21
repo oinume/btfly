@@ -8,6 +8,7 @@ import sys
 
 from btfly.conf import load_conf, ConfValidator
 from btfly.utils import create_logger
+from btfly.plugin_manager import PluginManager
 
 class Main(object):
     def __init__(self, file, home_dir):
@@ -67,13 +68,15 @@ class Main(object):
         
         #target_field = self.options.get('field') or 'name'
         # load subcommands
-        subcommand_plugins_dir = os.path.join(self.home_dir, 'plugins')
+        plugin_manager = PluginManager(self.log)
+        plugin_dirs = conf.get('plugin_dirs') or []
+        if not plugin_dirs:
+            # Add default plugin directory
+            plugin_dirs.append(self.home_dir, 'plugins')
+        plugins = plugin_manager.load_plugins(plugin_dirs)
+        
         # TODO: handle subcommand
         # TODO: PluginManager.register_subcommands()を呼ぶようにする
-        subcommand_plugins = self.load_subcommand_plugins(subcommand_plugins_dir)
-        for plugin in subcommand_plugins:
-            subcommands = plugin.define_subcommands()
-            self.log.debug("subcommands = %s" % subcommands)
 
     def load_module(self, module_name,basepath):
         """ モジュールをロードして返す

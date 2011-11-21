@@ -1,8 +1,7 @@
-class MyClass(object):
-    def __init__(self):
-        pass
+from btfly.subcommand import Subcommand
 
-def define_subcommands():
-    return [
-        { 'name': 'hoge', 'subcommand_class': MyClass }
-    ]
+class Hoge(Subcommand):
+    pass
+
+def register(manager):
+    manager.register_subcommand(Hoge('hoge', None))

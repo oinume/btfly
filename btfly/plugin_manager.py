@@ -13,6 +13,8 @@ class PluginManager(object):
     def register_subcommand(self, subcommand):
         if subcommand is None:
             raise ValueError("Argument subcommand is None")
+        elif self._subcommands.has_key(subcommand.name):
+            raise ValueError("Argument subcommand '%s' is already registered." % (subcommand.name))
         
         self._log.debug("register subcommand: '%s'" % (subcommand.name))
         subcommand.set_log(self._log)

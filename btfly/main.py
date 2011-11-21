@@ -69,6 +69,7 @@ class Main(object):
         # load subcommands
         subcommand_plugins_dir = os.path.join(self.home_dir, 'plugins')
         # TODO: handle subcommand
+        # TODO: PluginManager.register_subcommands()を呼ぶようにする
         subcommand_plugins = self.load_subcommand_plugins(subcommand_plugins_dir)
         for plugin in subcommand_plugins:
             subcommands = plugin.define_subcommands()

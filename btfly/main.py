@@ -2,13 +2,21 @@
 # -*- coding: utf-8 -*-
 
 import argparse
-import imp
 import os
 import sys
 
 from btfly.conf import load_conf, ConfValidator
 from btfly.utils import create_logger
 from btfly.plugin_manager import PluginManager
+from btfly.subcommand import Subcommand
+
+class Context(object):
+    def __init__(self, home_dir, options, conf, hosts_conf, field):
+        self.home_dir = home_dir
+        self.options = options
+        self.conf = conf
+        self.hosts_conf = hosts_conf
+        self.field = field
 
 class Main(object):
     def __init__(self, file, home_dir):
@@ -66,40 +74,27 @@ class Main(object):
             for e in validation_errors:
                 print >> sys.stderr, e.message
         
-        #target_field = self.options.get('field') or 'name'
+        
         # load subcommands
         plugin_manager = PluginManager(self.log)
         plugin_dirs = conf.get('plugin_dirs') or []
         if not plugin_dirs:
             # Add default plugin directory
             plugin_dirs.append(self.home_dir, 'plugins')
-        plugins = plugin_manager.load_plugins(plugin_dirs)
+        plugin_manager.load_plugins(plugin_dirs)
+        self.log.debug("options = %s" % (self.options))
+        subcommand = plugin_manager.subcommand(self.options.get('command')[0])
+        if not isinstance(subcommand, Subcommand):
+            raise ValueError("subcommand '%s' is not instance of Subcommand" % subcommand)
+
+        field = self.options.get('field') or 'name'
+        context = Context(self.home_dir, self.options, conf, hosts_conf, field)
+        output = subcommand.execute(context)
+        print output
         
         # TODO: handle subcommand
         # TODO: PluginManager.register_subcommands()を呼ぶようにする
 
-    def load_module(self, module_name,basepath):
-        """ モジュールをロードして返す
-        """
-        f,n,d = imp.find_module(module_name,[basepath])
-        return imp.load_module(module_name,f,n,d)
-
-    def load_subcommand_plugins(self, base_dir):
-        """ Pluginをロードしてリストにして返す
-        """
-        plugins = []
-        for fdn in os.listdir(base_dir):
-            try:
-                if fdn.endswith(".py"):
-                    m = self.load_module(fdn.replace(".py",""), base_dir)
-                    plugins.append(m)
-                elif os.path.isdir(fdn):
-                    m = self.load_module(fdn)
-                    plugins.append(m)
-            except ImportError:
-                pass
-        return plugins
-    
 
 # eval `BTFLY_ENV=production btfly --roles web --field ip env`
 # --> btfly_hosts=(127.0.0.1 192.168.1.2)

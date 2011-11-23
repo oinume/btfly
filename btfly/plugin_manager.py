@@ -9,7 +9,14 @@ class PluginManager(object):
         self._log = log
         self._subcommands = {}
         self._subcommands_list = []
-        
+
+    @property
+    def subcommands(self):
+        return self._subcommands
+
+    def subcommand(self, name):
+        return self._subcommands.get(name)
+
     def register_subcommand(self, subcommand):
         if subcommand is None:
             raise ValueError("Argument subcommand is None")

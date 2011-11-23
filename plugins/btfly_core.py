@@ -8,15 +8,6 @@ class CSV(Subcommand):
         hosts_conf = context.hosts_conf
         hosts = hosts_conf.get('hosts')
         values = []
-        # HostsConf.names()
-        # TODO: HostsConf.ips(roles=[ 'hoge' ])
-        # HostsConf.names(statuses=[ 'active' ])
-        # HostsConf.values
-        # バグ取り
-        # hosts.yaml作成
-        # ディプロイスクリプト作成
-        # maven repo登録スクリプト作成
-        # Flashタグ切りスクリプト作成
         if context.field == 'name':
             for host in hosts:
                 values.append(host.keys()[0])

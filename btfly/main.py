@@ -59,6 +59,7 @@ class Main(object):
         options = parser.parse_args()
         self.options = options.__dict__
         self.log = create_logger(self.options['debug'])
+        # ここでhosts_confなどをロードする
 
     def run(self):
         conf = load_conf(self.options['conf'])
@@ -69,12 +70,23 @@ class Main(object):
             conf, hosts_conf,
             self.options['conf'], self.options['hosts_conf']
         )
-        # TODO: validation
+
         if validation_errors:
             for e in validation_errors:
                 print >> sys.stderr, e.message
-        
-        
+        # TODO:
+        # arg_parse: subparser
+        # validation
+        # HostsConf.names()
+        # HostsConf.ips(roles=[ 'hoge' ])
+        # HostsConf.names(statuses=[ 'active' ])
+        # HostsConf.values
+        # バグ取り
+        # hosts.yaml作成(Dev,Stg,Prd)
+        # ディプロイスクリプト作成
+        # maven repo登録スクリプト作成
+        # Flashタグ切りスクリプト作成
+
         # load subcommands
         plugin_manager = PluginManager(self.log)
         plugin_dirs = conf.get('plugin_dirs') or []

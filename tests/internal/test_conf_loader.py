@@ -46,7 +46,7 @@ def test_02_load_json():
     eq_(expected, object, "JSONConfLoader.load()")
 
 def test_03_load_conf():
-    object = load_conf(os.path.join(TESTS_DIR, 'conf.yaml'))
+    object = load_conf(os.path.join(TESTS_DIR, 'conf_for_loader.yaml'))
     ok_(object['statuses'], "load_conf")
 
 @raises(ValueError)

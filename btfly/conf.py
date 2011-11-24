@@ -91,23 +91,18 @@ class HostsManager(object):
             self._append_if_statuses_matched(values_for_statuses, target_statuses, status, name)
             # collect host names without any condition
             values.append(name)
-        
-        if target_roles and target_statuses:
-            return list(set(values_for_roles) & set(values_for_statuses))
-        elif target_roles and not target_statuses:
-            return values_for_roles
-        elif not target_roles and target_statuses:
-            return values_for_statuses
-        else:
-            return values
+        return self.determine_values(
+            target_roles, target_statuses,
+            values, values_for_roles, values_for_statuses
+        )
 
     def ip_addresses(self, **kwargs):
-        hosts = self._hosts_conf.get('ip_addresses')
+        hosts = self._hosts_conf.get('hosts')
         target_roles = kwargs.get('roles') or []
         target_statuses = kwargs.get('statuses') or []
         values, values_for_roles, values_for_statuses = [], [], []
         for host in hosts:
-            attributes = host.values()
+            attributes = host.values()[0]
             ip = attributes.get('ip') or '' # TODO: ありえない
             roles = attributes.get('roles') or [] # TODO: normalize
             status = attributes.get('status') or '' # TODO: ありえない
@@ -118,30 +113,13 @@ class HostsManager(object):
             self._append_if_statuses_matched(values_for_statuses, target_statuses, status, ip)
             # collect host names without any condition
             values.append(ip)
-
-        if target_roles and target_statuses:
-            return list(set(values_for_roles) & set(values_for_statuses))
-        elif target_roles and not target_statuses:
-            return values_for_roles
-        elif not target_roles and target_statuses:
-            return values_for_statuses
-        else:
-            return values
+        return self.determine_values(
+            target_roles, target_statuses,
+            values, values_for_roles, values_for_statuses
+        )
 
     def values(self):
         pass
-    
-#        hosts_conf = context.hosts_conf
-#        hosts = hosts_conf.get('hosts')
-#        values = []
-#        if context.field == 'name':
-#            for host in hosts:
-#                values.append(host.keys()[0])
-#        elif context.field == 'ip':
-#            for host in hosts:
-#                values.append(hosts.values()[0]['ip'])
-#        self.log.debug("values = %s" % values)
-#        return ','.join(values)
 
     def _append_if_roles_matched(self, list, target_roles, roles, value):
         # collect host names with specified roles
@@ -155,3 +133,14 @@ class HostsManager(object):
             if status == target_status:
                 list.append(value)
 
+    def determine_values(self, target_roles, target_statuses,
+                         values, values_for_roles, values_for_statuses):
+        if target_roles and target_statuses:
+            return list(set(values_for_roles) & set(values_for_statuses))
+        elif target_roles and not target_statuses:
+            return values_for_roles
+        elif not target_roles and target_statuses:
+            return values_for_statuses
+        else:
+            return values
+    

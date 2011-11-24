@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-class Subcommand(object):
+class BaseTask(object):
     def __init__(self, name, description):
         self._name = name
         self._description = description

@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 
-from btfly.subcommand import Subcommand
+from btfly.task import BaseTask
 
-class CSV(Subcommand):
+class CSV(BaseTask):
     def execute(self, context):
-        self.log.info("CSV subcommand execute()")
+        self.log.info("CSV task execute()")
         hosts_conf = context.hosts_conf
         hosts = hosts_conf.get('hosts')
         values = []
@@ -17,7 +17,7 @@ class CSV(Subcommand):
         self.log.debug("values = %s" % values)
         return ','.join(values)
 
-class ShEnv(Subcommand):
+class ShEnv(BaseTask):
     def execute(self, context):
         return ''
 

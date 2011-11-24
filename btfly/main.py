@@ -8,7 +8,7 @@ import sys
 from btfly.conf import load_conf, ConfValidator
 from btfly.utils import create_logger
 from btfly.plugin_manager import PluginManager
-from btfly.subcommand import Subcommand
+from btfly.task import BaseTask
 
 class Context(object):
     def __init__(self, home_dir, options, conf, hosts_conf, field):
@@ -87,7 +87,7 @@ class Main(object):
         # maven repo登録スクリプト作成
         # Flashタグ切りスクリプト作成
 
-        # load subcommands
+        # load tasks
         plugin_manager = PluginManager(self.log)
         plugin_dirs = conf.get('plugin_dirs') or []
         if not plugin_dirs:
@@ -95,17 +95,14 @@ class Main(object):
             plugin_dirs.append(self.home_dir, 'plugins')
         plugin_manager.load_plugins(plugin_dirs)
         self.log.debug("options = %s" % (self.options))
-        subcommand = plugin_manager.subcommand(self.options.get('command')[0])
-        if not isinstance(subcommand, Subcommand):
-            raise ValueError("subcommand '%s' is not instance of Subcommand" % subcommand)
+        task = plugin_manager.task(self.options.get('command')[0])
+        if not isinstance(task, BaseTask):
+            raise ValueError("task '%s' is not instance of BaseTask." % task)
 
         field = self.options.get('field') or 'name'
         context = Context(self.home_dir, self.options, conf, hosts_conf, field)
-        output = subcommand.execute(context)
+        output = task.execute(context)
         print output
-        
-        # TODO: handle subcommand
-        # TODO: PluginManager.register_subcommands()を呼ぶようにする
 
 
 # eval `BTFLY_ENV=production btfly --roles web --field ip env`
@@ -119,8 +116,3 @@ class Main(object):
 #
 # btfly-rsync pigg_files /usr/local/pigg_files/
 
-# plugin
-# tomahawk.py
-# def define_subcommands():
-#     return [ { 'name': 'tomahawk_hosts', 'class': TomahawkHosts } ]
-#c()

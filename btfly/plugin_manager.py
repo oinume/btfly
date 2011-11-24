@@ -7,26 +7,26 @@ import os
 class PluginManager(object):
     def __init__(self, log):
         self._log = log
-        self._subcommands = {}
-        self._subcommands_list = []
+        self._tasks = {}
+        self._tasks_list = []
 
     @property
-    def subcommands(self):
-        return self._subcommands
+    def tasks(self):
+        return self._tasks
 
-    def subcommand(self, name):
-        return self._subcommands.get(name)
+    def task(self, name):
+        return self._tasks.get(name)
 
-    def register_subcommand(self, subcommand):
-        if subcommand is None:
-            raise ValueError("Argument subcommand is None")
-        elif self._subcommands.has_key(subcommand.name):
-            raise ValueError("Argument subcommand '%s' is already registered." % (subcommand.name))
+    def register_task(self, task):
+        if task is None:
+            raise ValueError("Argument task is None")
+        elif self._tasks.has_key(task.name):
+            raise ValueError("Argument task '%s' is already registered." % (task.name))
         
-        self._log.debug("register subcommand: '%s'" % (subcommand.name))
-        subcommand.set_log(self._log)
-        self._subcommands[subcommand.name] = subcommand
-        self._subcommands_list.append(subcommand)
+        self._log.debug("register task: '%s'" % (task.name))
+        task.set_log(self._log)
+        self._tasks[task.name] = task
+        self._tasks_list.append(task)
 
     def load_module(self, module_name,basepath):
         f,n,d = imp.find_module(module_name,[basepath])

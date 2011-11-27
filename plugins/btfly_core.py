@@ -5,16 +5,21 @@ from btfly.task import BaseTask
 class CSV(BaseTask):
     def execute(self, context):
         self.log.debug("CSV task execute()")
-        hosts_conf = context.hosts_conf
-        # TODO: context.hosts_managerにする
-        hosts = hosts_conf.get('hosts')
+        hosts_manager = context.hosts_manager
         values = []
         if context.field == 'name':
-            for host in hosts:
-                values.append(host.keys()[0])
+            values = hosts_manager.names(
+                roles=context.options.get('roles'),
+                statuses=context.options.get('statuses')
+            )
         elif context.field == 'ip':
-            for host in hosts:
-                values.append(hosts.values()[0]['ip'])
+            values = hosts_manager.ip_addresses(
+                roles=context.options.get('roles'),
+                statuses=context.options.get('statuses')
+            )
+        else:
+            raise ValueError("Invalid context.field: '%s'" % (context.field))
+
         self.log.debug("values = %s" % values)
         return ','.join(values)
 

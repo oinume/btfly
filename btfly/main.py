@@ -11,11 +11,10 @@ from btfly.plugin_manager import PluginManager
 from btfly.task import BaseTask
 
 class Context(object):
-    def __init__(self, home_dir, options, conf, hosts_conf, field):
+    def __init__(self, home_dir, options, hosts_manager, field):
         self.home_dir = home_dir
         self.options = options
-        self.conf = conf
-        self.hosts_conf = hosts_conf
+        self.hosts_manager = hosts_manager
         self.field = field
 
 class Main(object):
@@ -104,8 +103,7 @@ class Main(object):
         context = Context(
             self._home_dir,
             self._options,
-            self._hosts_manager.conf,
-            self._hosts_manager.hosts_conf,
+            self._hosts_manager,
             field
         )
         output = task.execute(context)

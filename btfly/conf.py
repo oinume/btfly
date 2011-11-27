@@ -71,10 +71,12 @@ class ConfValidator(object):
         return ()
 
 class HostsManager(object):
-    def __init__(self, conf, hosts_conf, log=create_logger()):
+    def __init__(self, conf, hosts_conf, log):
         self._conf = conf
         self._hosts_conf = hosts_conf
         self._log = log
+        if log is None:
+            self._log = create_logger()
 
     @property
     def conf(self):

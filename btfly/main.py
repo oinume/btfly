@@ -5,7 +5,7 @@ import argparse
 import os
 import sys
 
-from btfly.conf import load_conf, ConfValidator
+from btfly.conf import load_conf, ConfValidator, HostsManager
 from btfly.utils import create_logger
 from btfly.plugin_manager import PluginManager
 from btfly.task import BaseTask
@@ -53,33 +53,40 @@ class Main(object):
             help='Enable debug output.',
         )
 
-        self.home_dir = home_dir
-        self.file = file
-        self.arg_parser = parser
+        self._home_dir = home_dir
+        self._file = file
+        self._arg_parser = parser
         options = parser.parse_args()
-        self.options = options.__dict__
-        self.log = create_logger(self.options['debug'])
-        # ここでhosts_confなどをロードする
+        self._options = options.__dict__
+        self._log = create_logger(self._options['debug'])
 
-    def run(self):
-        conf = load_conf(self.options['conf'])
-        hosts_conf = load_conf(self.options['hosts_conf'])
+        conf = load_conf(self._options['conf'])
+        hosts_conf = load_conf(self._options['hosts_conf'])
         
         validator = ConfValidator()
         validation_errors = validator.validate(
             conf, hosts_conf,
-            self.options['conf'], self.options['hosts_conf']
+            self._options['conf'], self._options['hosts_conf']
         )
-
         if validation_errors:
             for e in validation_errors:
                 print >> sys.stderr, e.message
+        self._hosts_manager = HostsManager(conf, hosts_conf, self._log)
+
+        # load tasks
+        plugin_manager = PluginManager(self._log)
+        plugin_dirs = conf.get('plugin_dirs') or []
+        if not plugin_dirs:
+            # Add default plugin directory
+            plugin_dirs.append(self.home_dir, 'plugins')
+        plugin_manager.load_plugins(plugin_dirs)
+        self._plugin_manager = plugin_manager
+        self._log.debug("plugins are loaded.")
+
+    def run(self, out=sys.stdout):
         # TODO:
         # arg_parse: subparser
         # validation
-        # HostsConf.names()
-        # HostsConf.ips(roles=[ 'hoge' ])
-        # HostsConf.names(statuses=[ 'active' ])
         # HostsConf.values
         # バグ取り
         # hosts.yaml作成(Dev,Stg,Prd)
@@ -88,22 +95,21 @@ class Main(object):
         # Flashタグ切りスクリプト作成
 
         # load tasks
-        plugin_manager = PluginManager(self.log)
-        plugin_dirs = conf.get('plugin_dirs') or []
-        if not plugin_dirs:
-            # Add default plugin directory
-            plugin_dirs.append(self.home_dir, 'plugins')
-        plugin_manager.load_plugins(plugin_dirs)
-        self.log.debug("options = %s" % (self.options))
-        task = plugin_manager.task(self.options.get('command')[0])
+        self._log.debug("options = %s" % (self._options))
+        task = self._plugin_manager.task(self._options.get('command')[0])
         if not isinstance(task, BaseTask):
             raise ValueError("task '%s' is not instance of BaseTask." % task)
 
-        field = self.options.get('field') or 'name'
-        context = Context(self.home_dir, self.options, conf, hosts_conf, field)
+        field = self._options.get('field') or 'name'
+        context = Context(
+            self._home_dir,
+            self._options,
+            self._hosts_manager.conf,
+            self._hosts_manager.hosts_conf,
+            field
+        )
         output = task.execute(context)
-        print output
-
+        print >>out, output
 
 # eval `BTFLY_ENV=production btfly --roles web --field ip env`
 # --> btfly_hosts=(127.0.0.1 192.168.1.2)

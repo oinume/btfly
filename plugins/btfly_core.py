@@ -4,8 +4,9 @@ from btfly.task import BaseTask
 
 class CSV(BaseTask):
     def execute(self, context):
-        self.log.info("CSV task execute()")
+        self.log.debug("CSV task execute()")
         hosts_conf = context.hosts_conf
+        # TODO: context.hosts_managerにする
         hosts = hosts_conf.get('hosts')
         values = []
         if context.field == 'name':
@@ -22,5 +23,5 @@ class ShEnv(BaseTask):
         return ''
 
 def register(manager):
-    manager.register_subcommand(CSV('csv', 'output as CSV.'))
-    manager.register_subcommand(ShEnv('sh_env', 'output as sh environment.'))
+    manager.register_task(CSV('csv', 'output as CSV.'))
+    manager.register_task(ShEnv('sh_env', 'output as sh environment.'))

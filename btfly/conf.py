@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import with_statement
+from btfly.utils import create_logger
 
 def load_conf(file, options=None):
     if not file and not options:
@@ -70,9 +71,18 @@ class ConfValidator(object):
         return ()
 
 class HostsManager(object):
-    def __init__(self, conf, hosts_conf):
+    def __init__(self, conf, hosts_conf, log=create_logger()):
         self._conf = conf
         self._hosts_conf = hosts_conf
+        self._log = log
+
+    @property
+    def conf(self):
+        return self._conf
+
+    @property
+    def hosts_conf(self):
+        return self._hosts_conf
 
     def names(self, **kwargs):
         hosts = self._hosts_conf.get('hosts')

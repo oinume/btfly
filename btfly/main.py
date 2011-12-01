@@ -58,17 +58,22 @@ class Main(object):
         self._arg_parser = parser
         # TODO: プラグインをロードするタイミングとparse_args()を呼ぶ順番どうするか決める
         # plugin_dirsはconf.get()で決定される(confじゃなくて環境変数BTFLY_PLUGIN_PATHを定義するか？)
+        # (os.pathsepつかう)
+        # それか $BTFLY_HOME/plugins 固定にするか？
         plugin_manager = PluginManager(self._arg_parser)
+        plugin_dirs = [ os.path.join(self._home_dir, 'plugins') ]
+        # load tasks
+        plugin_manager.load_plugins(plugin_dirs)
+
         self._args = parser.parse_args()
         self._options = self._args.__dict__
         self._log = create_logger(self._options['debug'])
+        # TODO: logging.getLogger('btfly') and dynamic level change
+        # PluginManager(self._log, self._arg_parser)
+        # BTFLY_DEBUG=1 set log level DEBUG
 
-        # load tasks
-        plugin_dirs = conf.get('plugin_dirs') or []
-        if not plugin_dirs:
-            # Add default plugin directory
-            plugin_dirs.append(self.home_dir, 'plugins')
-        plugin_manager.load_plugins(plugin_dirs)
+        # TODO: Env BTFLY_PLUGIN_PATH (with os.pathsep)
+        plugin_manager.set_log(self._log)
         self._plugin_manager = plugin_manager
         self._log.debug("plugins are loaded.")
 

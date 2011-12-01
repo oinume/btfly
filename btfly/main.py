@@ -73,7 +73,7 @@ class Main(object):
         self._hosts_manager = HostsManager(conf, hosts_conf, self._log)
 
         # load tasks
-        plugin_manager = PluginManager(self._log)
+        plugin_manager = PluginManager(self._log, self._arg_parser)
         plugin_dirs = conf.get('plugin_dirs') or []
         if not plugin_dirs:
             # Add default plugin directory

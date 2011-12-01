@@ -3,6 +3,9 @@
 from btfly.task import BaseTask
 
 class CSV(BaseTask):
+    def add_cli_options(self, parser):
+        pass
+
     def execute(self, context):
         self.log.debug("CSV task execute()")
         hosts_manager = context.hosts_manager

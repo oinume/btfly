@@ -26,10 +26,10 @@ class Main(object):
             description = "A micro host management program.",
             conflict_handler = 'resolve'
         )
-        parser.add_argument(
-            'command', metavar='command', nargs=1,
-            help='An executing btfly command.',
-        )
+#        parser.add_argument(
+#            'command', metavar='command', nargs=1,
+#            help='An executing btfly command.',
+#        )
 
         default_conf_path = os.path.join(default_conf_dir, 'conf.yaml')
         parser.add_argument(
@@ -54,10 +54,23 @@ class Main(object):
 
         self._home_dir = home_dir
         self._file = file
+
         self._arg_parser = parser
-        options = parser.parse_args()
-        self._options = options.__dict__
+        # TODO: プラグインをロードするタイミングとparse_args()を呼ぶ順番どうするか決める
+        # plugin_dirsはconf.get()で決定される(confじゃなくて環境変数BTFLY_PLUGIN_PATHを定義するか？)
+        plugin_manager = PluginManager(self._arg_parser)
+        self._args = parser.parse_args()
+        self._options = self._args.__dict__
         self._log = create_logger(self._options['debug'])
+
+        # load tasks
+        plugin_dirs = conf.get('plugin_dirs') or []
+        if not plugin_dirs:
+            # Add default plugin directory
+            plugin_dirs.append(self.home_dir, 'plugins')
+        plugin_manager.load_plugins(plugin_dirs)
+        self._plugin_manager = plugin_manager
+        self._log.debug("plugins are loaded.")
 
         conf = load_conf(self._options['conf'])
         hosts_conf = load_conf(self._options['hosts_conf'])
@@ -72,16 +85,6 @@ class Main(object):
                 print >> sys.stderr, e.message
         self._hosts_manager = HostsManager(conf, hosts_conf, self._log)
 
-        # load tasks
-        plugin_manager = PluginManager(self._log, self._arg_parser)
-        plugin_dirs = conf.get('plugin_dirs') or []
-        if not plugin_dirs:
-            # Add default plugin directory
-            plugin_dirs.append(self.home_dir, 'plugins')
-        plugin_manager.load_plugins(plugin_dirs)
-        self._plugin_manager = plugin_manager
-        self._log.debug("plugins are loaded.")
-
     def run(self, out=sys.stdout):
         # TODO:
         # arg_parse: subparser
@@ -95,7 +98,8 @@ class Main(object):
 
         # load tasks
         self._log.debug("options = %s" % (self._options))
-        task = self._plugin_manager.task(self._options.get('command')[0])
+        print "args = " + str(self._args)
+        #task = self._plugin_manager.task(self._options.get('command')[0])
         if not isinstance(task, BaseTask):
             raise ValueError("task '%s' is not instance of BaseTask." % task)
 
@@ -106,7 +110,9 @@ class Main(object):
             self._hosts_manager,
             field
         )
-        output = task.execute(context)
+        output = self._args.func(task, context)
+        #output = task.execute(context)
+        
         print >>out, output
 
 # eval `BTFLY_ENV=production btfly --roles web --field ip env`

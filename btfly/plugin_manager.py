@@ -8,6 +8,10 @@ class PluginManager(object):
     def __init__(self, log, arg_parser):
         self._log = log
         self._arg_parser = arg_parser
+        self._arg_subparsers = arg_parser.add_subparsers(
+            dest='command',
+            help="sub-command help"
+        )
         self._tasks = {}
         self._tasks_list = []
 
@@ -26,7 +30,11 @@ class PluginManager(object):
         
         self._log.debug("register task: '%s'" % (task.name))
         task.set_log(self._log)
-        # task.add_cli_options(parser)
+        subparser = task.add_arguments(self._arg_subparsers)
+        if subparser is None:
+            raise RuntimeError("task.add_arguments() must be return parser object. (task = '%s')" % task.name)
+        subparser.set_defaults(func=task.execute)
+        #parser_bar.set_defaults(func=bar)
         self._tasks[task.name] = task
         self._tasks_list.append(task)
 
@@ -34,7 +42,7 @@ class PluginManager(object):
         f,n,d = imp.find_module(module_name,[basepath])
         return imp.load_module(module_name,f,n,d)
 
-    def load_plugins(self, base_dirs, arg_parser):
+    def load_plugins(self, base_dirs):
         plugins = []
         for base_dir in base_dirs:
             for fdn in os.listdir(base_dir):

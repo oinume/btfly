@@ -3,8 +3,9 @@
 from btfly.task import BaseTask
 
 class CSV(BaseTask):
-    def add_cli_options(self, parser):
-        pass
+    def add_arguments(self, subparsers):
+        p = subparsers.add_parser('csv', help="csv help")
+        return p
 
     def execute(self, context):
         self.log.debug("CSV task execute()")
@@ -27,6 +28,10 @@ class CSV(BaseTask):
         return ','.join(values)
 
 class ShEnv(BaseTask):
+    def add_arguments(self, subparsers):
+        p = subparsers.add_parser('sh_env', help="sh_env help")
+        return p
+
     def execute(self, context):
         return ''
 

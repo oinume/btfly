@@ -21,5 +21,8 @@ class BaseTask(object):
 
     log = property(get_log, set_log)
 
+    def add_cli_options(self, arg_parser):
+        pass
+
     def execute(self):
         pass

@@ -72,6 +72,12 @@ class ConfParseError(Exception):
         self._file = file
         self._line = line
 
+    @property
+    def file(self): return self._file
+
+    @property
+    def line(self): return self._line
+
     def __str__(self):
         s = self._message
         if self._file is not None and self._line is not None:
@@ -92,21 +98,35 @@ class HostsManager(object):
             self._log = create_logger()
 
     @property
-    def conf(self):
-        return self._conf
+    def conf(self): return self._conf
 
     @property
-    def hosts_conf(self):
-        return self._hosts_conf
+    def hosts_conf(self): return self._hosts_conf
+
+    def _error_line(self, regexp, conf_file):
+        #conf_file
+        f = open(conf_file)
+        try:
+            line_number = 1
+            for line in f:
+                if regexp.match(line):
+                    return line_number
+                line_number += 1
+        finally:
+            f.close()
 
     def validate(self, conf_file=None, hosts_conf_file=None):
+        import re
         errors = []
         # statuses
         statuses = self.conf.get('statuses')
         if statuses is None:
             errors.append(ConfParseError("Attribute 'statuses' is not found.", conf_file, 0))
-        elif type(self.conf.statuses).__name__ != 'list':
-            errors.append(ConfParseError("Attribute 'statuses' is not list.", conf_file, 0))
+        elif type(statuses).__name__ != 'list':
+            line = 0
+            if conf_file is not None:
+                line = self._error_line(re.compile(r'^statuses\s*:'), conf_file)
+            errors.append(ConfParseError("Attribute 'statuses' is not list.", conf_file, line))
 
         # TODO: regexp check
 

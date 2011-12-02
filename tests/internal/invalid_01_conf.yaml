@@ -1,0 +1,4 @@
+# statuses is not list
+statuses: { a: 'b' }
+environments:
+  - { production: [ 'production', 'product', 'prd' ] }

@@ -23,8 +23,19 @@ def test_00_validate():
     hosts_conf_file = os.path.join(TESTS_DIR, 'hosts.yaml')
     hosts_manager = create_invalid_hosts_manager(conf_file, hosts_conf_file)
     errors = hosts_manager.validate(conf_file, hosts_conf_file)
-    print "errors = %s" % (errors)
-    # TODO: check
+    e = errors[0]
+    eq_(e.file, conf_file, "validate > statuses > file")
+    eq_(e.message, "Attribute 'statuses' is not found.", "validate > statuses > message")
+
+def test_01_validate():
+    conf_file = os.path.join(TESTS_DIR, 'invalid_01_conf.yaml')
+    hosts_conf_file = os.path.join(TESTS_DIR, 'hosts.yaml')
+    hosts_manager = create_invalid_hosts_manager(conf_file, hosts_conf_file)
+    errors = hosts_manager.validate(conf_file, hosts_conf_file)
+    e = errors[0]
+    eq_(e.message, "Attribute 'statuses' is not list.", "validate > statuses > message")
+    eq_(e.line, 2, "validate > statuses > line")
+
 
 def test_10_names():
     conf = load_conf(os.path.join(TESTS_DIR, 'conf.yaml'))
@@ -33,12 +44,12 @@ def test_10_names():
     eq_(
         [ 'web01', 'web02', 'web03', 'mdb01', 'sdb01', 'sdb02', 'sdb03' ],
         hosts_manager.names(),
-        "names (all)"
+        "names > all"
     )
     eq_(
         [ 'web03' ],
         hosts_manager.names(roles=[ 'web', 'master_db' ], statuses=[ 'dead' ]),
-        "names (roles, statuses)"
+        "names > roles, statuses"
     )
     #print hosts_manager.names(roles=[ 'web', 'master_db' ], statuses=[ 'dead' ])
 
@@ -49,7 +60,7 @@ def test_20_ip_addresses():
     eq_(
         [ '192.168.1.110', '192.168.1.111', '192.168.1.112' ],
         hosts_manager.ip_addresses(roles=[ 'slave_db' ]),
-        "ip_addresses (roles)"
+        "ip_addresses > roles"
     )
 #    eq_(
 #        [ 'web03' ],

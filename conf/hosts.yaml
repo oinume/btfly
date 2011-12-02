@@ -9,6 +9,5 @@ roles:
       description: 'memcached'
 hosts:
 # web
-  - localhost: { ip: '127.0.0.1', roles: [ 'web', 'master_db' ], status: 'active' }
-  - pigg-socket: { ip: '127.0.0.1', roles: [ 'web', 'master_db' ], status: 'active' }
-
+  - localhost: { ip: '127.0.0.1', roles: [ 'web', 'memcached' ], status: 'active' }
+  - mydb: { ip: '192.168.1.102', roles: [ 'master_db' ], status: 'active' }

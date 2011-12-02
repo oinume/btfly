@@ -26,11 +26,28 @@ class CSV(BaseTask):
 class ShEnv(BaseTask):
     def add_options(self, parser):
         parser.add_argument(
-            '-E', '--env-name', help='Specify an environment name to output.'
+            '-E', '--env-name', default='BTFLY_HOSTS',
+            help='Specify an environment name to output.'
         )
 
     def execute(self, context):
-        return ''
+        hosts_manager = context.hosts_manager
+        env_name = context.options.get('env_name') or 'BTFLY_HOSTS'
+        if context.field == 'name':
+            values = hosts_manager.names(
+                roles=context.options.get('roles'),
+                statuses=context.options.get('statuses')
+            )
+        elif context.field == 'ip':
+            values = hosts_manager.ip_addresses(
+                roles=context.options.get('roles'),
+                statuses=context.options.get('statuses')
+            )
+        else:
+            raise ValueError("Invalid context.field: '%s'" % (context.field))
+
+        self.log.debug("values = %s" % values)
+        return "%s=(%s)" % (env_name, ' '.join(values))
 # eval `BTFLY_ENV=production btfly --roles web --field ip env`
 # --> btfly_hosts=(127.0.0.1 192.168.1.2)
 # % btfly-foreach; do ssh $i uptime; done

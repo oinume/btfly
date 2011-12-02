@@ -16,8 +16,7 @@ class PluginManager(object):
         self._tasks_list = []
 
     @property
-    def tasks(self):
-        return self._tasks
+    def tasks(self): return self._tasks
 
     def task(self, name):
         return self._tasks.get(name)

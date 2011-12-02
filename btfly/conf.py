@@ -104,7 +104,9 @@ class HostsManager(object):
     def hosts_conf(self): return self._hosts_conf
 
     def _error_line(self, regexp, conf_file):
-        #conf_file
+        if conf_file is None:
+            return 0
+        
         f = open(conf_file)
         try:
             line_number = 1
@@ -112,6 +114,7 @@ class HostsManager(object):
                 if regexp.match(line):
                     return line_number
                 line_number += 1
+            return 0
         finally:
             f.close()
 
@@ -123,15 +126,21 @@ class HostsManager(object):
         if statuses is None:
             errors.append(ConfParseError("Attribute 'statuses' is not found.", conf_file, 0))
         elif type(statuses).__name__ != 'list':
-            line = 0
-            if conf_file is not None:
-                line = self._error_line(re.compile(r'^statuses\s*:'), conf_file)
+            line = self._error_line(re.compile(r'^statuses\s*:'), conf_file)
             errors.append(ConfParseError("Attribute 'statuses' is not list.", conf_file, line))
 
-        # TODO: regexp check
-
         # environments
-        #environments = self.conf.get('environments')
+        environments = self.conf.get('environments')
+        if environments:
+            if type(environments).__name__ != 'list':
+                line = self._error_line(re.compile(r'^environments\s*:'), conf_file)
+                errors.append(ConfParseError("Attribute 'environments' is not list.", conf_file, line))
+        else:
+            environments = [
+                { 'production' : [ 'production' ] },
+                { 'staging'    : [ 'staging' ] },
+                { 'development': [ 'development' ] },
+            ]
         
         return errors
 

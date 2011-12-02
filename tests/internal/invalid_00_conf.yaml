@@ -1,0 +1,3 @@
+# no statuses -> error
+environments:
+  - { production: [ 'production', 'product', 'prd' ] }

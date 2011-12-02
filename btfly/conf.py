@@ -65,10 +65,23 @@ type2loader = {
     'json': { 'file_suffixes': [ '.json' ], 'loader_class': JSONConfLoader },
 }
 
-class ConfValidator(object):
-    def validate(self, conf, hosts_conf, conf_file=None, hosts_conf_file=None):
-        # TODO: implement
-        return ()
+class ConfParseError(Exception):
+    def __init__(self, message, file, line=None):
+        super(ConfParseError, self).__init__(message)
+        self._message = message
+        self._file = file
+        self._line = line
+
+    def __str__(self):
+        s = self._message
+        if self._file is not None and self._line is not None:
+            s += " (FILE: %s, LINE: %d)" % (self._file, self._line)
+        elif self._file is not None:
+            s += " (FILE: %s)" % (self._file)
+        return "ConfParseError <" + s + ">"
+
+    def __repr__(self):
+        return self.__str__()
 
 class HostsManager(object):
     def __init__(self, conf, hosts_conf, log):
@@ -85,6 +98,22 @@ class HostsManager(object):
     @property
     def hosts_conf(self):
         return self._hosts_conf
+
+    def validate(self, conf_file=None, hosts_conf_file=None):
+        errors = []
+        # statuses
+        statuses = self.conf.get('statuses')
+        if statuses is None:
+            errors.append(ConfParseError("Attribute 'statuses' is not found.", conf_file, 0))
+        elif type(self.conf.statuses).__name__ != 'list':
+            errors.append(ConfParseError("Attribute 'statuses' is not list.", conf_file, 0))
+
+        # TODO: regexp check
+
+        # environments
+        #environments = self.conf.get('environments')
+        
+        return errors
 
     def names(self, **kwargs):
         hosts = self._hosts_conf.get('hosts')

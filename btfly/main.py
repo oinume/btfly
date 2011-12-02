@@ -26,10 +26,6 @@ class Main(object):
             description = "A micro host management program.",
             conflict_handler = 'resolve'
         )
-#        parser.add_argument(
-#            'command', metavar='command', nargs=1,
-#            help='An executing btfly command.',
-#        )
 
         default_conf_path = os.path.join(default_conf_dir, 'conf.yaml')
         parser.add_argument(
@@ -55,27 +51,27 @@ class Main(object):
         self._home_dir = home_dir
         self._file = file
 
-        self._arg_parser = parser
+        log = None
+        env_debug = os.getenv('BTFLY_DEBUG') or '0'
+        if env_debug == '1' or env_debug.lower() == 'true':
+            log = create_logger(True)
+        else:
+            log = create_logger(False)
+
         # TODO: プラグインをロードするタイミングとparse_args()を呼ぶ順番どうするか決める
         # plugin_dirsはconf.get()で決定される(confじゃなくて環境変数BTFLY_PLUGIN_PATHを定義するか？)
         # (os.pathsepつかう)
-        # それか $BTFLY_HOME/plugins 固定にするか？
-        plugin_manager = PluginManager(self._arg_parser)
-        plugin_dirs = [ os.path.join(self._home_dir, 'plugins') ]
+        plugin_manager = PluginManager(log, parser)
+        plugin_dirs = [ os.path.join(home_dir, 'plugins') ]
         # load tasks
         plugin_manager.load_plugins(plugin_dirs)
+        log.debug("All plugins are loaded.")
 
+        self._arg_parser = parser
         self._args = parser.parse_args()
         self._options = self._args.__dict__
-        self._log = create_logger(self._options['debug'])
-        # TODO: logging.getLogger('btfly') and dynamic level change
-        # PluginManager(self._log, self._arg_parser)
-        # BTFLY_DEBUG=1 set log level DEBUG
-
-        # TODO: Env BTFLY_PLUGIN_PATH (with os.pathsep)
-        plugin_manager.set_log(self._log)
+        self._log = log
         self._plugin_manager = plugin_manager
-        self._log.debug("plugins are loaded.")
 
         conf = load_conf(self._options['conf'])
         hosts_conf = load_conf(self._options['hosts_conf'])
@@ -92,7 +88,6 @@ class Main(object):
 
     def run(self, out=sys.stdout):
         # TODO:
-        # arg_parse: subparser
         # validation
         # HostsConf.values
         # バグ取り
@@ -103,8 +98,7 @@ class Main(object):
 
         # load tasks
         self._log.debug("options = %s" % (self._options))
-        print "args = " + str(self._args)
-        #task = self._plugin_manager.task(self._options.get('command')[0])
+        task = self._plugin_manager.task(self._options.get('task'))
         if not isinstance(task, BaseTask):
             raise ValueError("task '%s' is not instance of BaseTask." % task)
 
@@ -115,9 +109,7 @@ class Main(object):
             self._hosts_manager,
             field
         )
-        output = self._args.func(task, context)
-        #output = task.execute(context)
-        
+        output = self._args.func(context)
         print >>out, output
 
 # eval `BTFLY_ENV=production btfly --roles web --field ip env`

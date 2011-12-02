@@ -1,7 +1,7 @@
-from btfly.subcommand import Subcommand
+from btfly.task import Task
 
-class Hoge(Subcommand):
+class Hoge(Task):
     pass
 
 def register(manager):
-    manager.register_subcommand(Hoge('hoge', None))
+    manager.register_task(Hoge('hoge', None))

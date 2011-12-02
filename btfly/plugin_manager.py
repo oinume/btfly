@@ -5,22 +5,15 @@ import inspect
 import os
 
 class PluginManager(object):
-    def __init__(self, arg_parser):
+    def __init__(self, log, arg_parser):
+        self._log = log
         self._arg_parser = arg_parser
         self._arg_subparsers = arg_parser.add_subparsers(
-            dest='command',
-            help="sub-command help"
+            dest='task',
+            help="task help"
         )
         self._tasks = {}
         self._tasks_list = []
-
-    def get_log(self):
-        return self._log
-
-    def set_log(self, log):
-        self._log = log
-
-    log = property(get_log, set_log)
 
     @property
     def tasks(self):
@@ -35,13 +28,13 @@ class PluginManager(object):
         elif self._tasks.has_key(task.name):
             raise ValueError("Argument task '%s' is already registered." % (task.name))
         
-        #self._log.debug("register task: '%s'" % (task.name))
+        self._log.debug("register task: '%s'" % (task.name))
         task.set_log(self._log)
         subparser = task.add_arguments(self._arg_subparsers)
         if subparser is None:
             raise RuntimeError("task.add_arguments() must be return parser object. (task = '%s')" % task.name)
         subparser.set_defaults(func=task.execute)
-        #parser_bar.set_defaults(func=bar)
+
         self._tasks[task.name] = task
         self._tasks_list.append(task)
 

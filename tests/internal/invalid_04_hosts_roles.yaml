@@ -1,0 +1,4 @@
+# Invalid roles type
+roles: { a: b }
+# Invalid hosts type
+hosts: { a: b }

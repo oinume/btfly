@@ -110,21 +110,6 @@ class HostsManager(object):
     @property
     def hosts_conf(self): return self._hosts_conf
 
-    def _error_line(self, regexp, conf_file):
-        if conf_file is None:
-            return 0
-        
-        f = open(conf_file)
-        try:
-            line_number = 1
-            for line in f:
-                if regexp.match(line):
-                    return line_number
-                line_number += 1
-            return 0
-        finally:
-            f.close()
-
     def validate(self, conf_file=None, hosts_conf_file=None):
         """
         validate self.conf and self.hosts_conf with original files.
@@ -138,6 +123,7 @@ class HostsManager(object):
             errors.append(ConfParseError("Attribute 'statuses' is required.", conf_file, 0))
         elif type(statuses).__name__ != 'list':
             errors.append(self._attribute_must_be_list_error('statuses', conf_file))
+        self._log.debug("statuses = %s" % (statuses))
 
         ### environments: optional list->dict->list
         environments = self.conf.get('environments')
@@ -148,80 +134,102 @@ class HostsManager(object):
             environments = copy.deepcopy(DEFAULT_ENVIRONMENTS)
             # Set default environments
             self.conf['environments'] = environments
-        
+        self._log.debug("environments = %s" % (environments))
+
         ### roles: optional list->dict
         roles = self.hosts_conf.get('roles') or []
         if roles:
             if type(roles).__name__ != 'list':
-                errors.append(self._attribute_must_be_list_error('roles', conf_file))
+                errors.append(self._attribute_must_be_list_error('roles', hosts_conf_file))
         else:
             # Set default roles
             self.hosts_conf['roles'] = []
-        
+        #self._log.debug("roles = %s" % (roles))
+        role_names = [ role.keys()[0] for role in roles ]
+        self._log.debug("role_names = %s" % (role_names))
+
         ### hosts: required
         hosts = self.hosts_conf.get('hosts')
         if hosts is None:
             errors.append(ConfParseError("Attribute 'hosts' is required.", hosts_conf_file, 0))
         elif type(hosts).__name__ != 'list':
-            errors.append(self._attribute_must_be_list_error('hosts', conf_file))
-        else:
-            for host in hosts:
-                ### host required dict
-                if type(host).__name__ != 'dict':
-                    errors.append(ConfParseError(
-                        "Host must be a hash type.",
-                        hosts_conf_file,
-                        None,
-                    ))
+            errors.append(self._attribute_must_be_list_error('hosts', hosts_conf_file))
+        
+        if errors:
+            return errors
 
-                host_name = host.keys()[0]
-                attrs = host.values()[0]
-                host_name_regexp = re.compile(host_name + r'\s*:')
-                if type(attrs).__name__ != 'dict':
+        for host in hosts:
+            ### host required dict
+            if type(host).__name__ != 'dict':
+                errors.append(ConfParseError(
+                    "Host must be a hash type.",
+                    hosts_conf_file,
+                    None,
+                ))
+
+            host_name = host.keys()[0]
+            attrs = host.values()[0]
+            host_name_regexp = re.compile(host_name + r'\s*:')
+            if type(attrs).__name__ != 'dict':
+                errors.append(ConfParseError(
+                    "Host '%s' must have a hash." % (host_name),
+                    hosts_conf_file,
+                    self._error_line(host_name_regexp, hosts_conf_file)
+                ))
+            
+            # Check required attributes is defined.
+            for attribute in ('ip', 'roles', 'status'):
+                if attrs.get(attribute) is None:
                     errors.append(ConfParseError(
-                        "Host '%s' must have a hash." % (host_name),
+                        "Attribute '%s' is required for host '%s'." % (attribute, host_name),
                         hosts_conf_file,
-                        self._error_line(host_name_regexp)
+                        self._error_line(host_name_regexp, hosts_conf_file)
                     ))
-                
-                # Check required attributes is defined.
-                for attribute in ('ip', 'roles', 'status'):
-                    if attrs.get(attribute) is None:
-                        errors.append(ConfParseError(
-                            "Attribute '%s' is required for host '%s'." % (attribute, host_name),
-                            hosts_conf_file,
-                            self._error_line(host_name_regexp)
-                        ))
-                
-                host_roles = attrs.get('roles')
-                host_status = attrs.get('status')
-                ### host roles: required list
-                if type(host_roles).__name__ != 'list':
+            
+            host_roles = attrs.get('roles')
+            host_status = attrs.get('status')
+            ### host roles: required list
+            if type(host_roles).__name__ != 'list':
+                errors.append(ConfParseError(
+                    "Invalid type of roles for host '%s'" % (host_name),
+                    hosts_conf_file,
+                    self._error_line(host_name_regexp, hosts_conf_file)
+                ))
+            for host_role in host_roles:
+                if not host_role in role_names:
                     errors.append(ConfParseError(
-                        "Invalid type of roles for host '%s'" % (host_name),
+                        "Invalid role '%s' for host '%s'" % (host_role, host_name),
                         hosts_conf_file,
-                        self._error_line(host_name_regexp)
+                        self._error_line(host_name_regexp, hosts_conf_file)
                     ))
-                for host_role in host_roles:
-                    if not host_role in roles:
-                        errors.append(ConfParseError(
-                            "Invalid role '%s' for host '%s'" % (host_role, host_name),
-                            hosts_conf_file,
-                            self._error_line(host_name_regexp)
-                        ))
-                
-                ### host status: required string
-                if not host_status in statuses:
-                    errors.append(ConfParseError(
-                         "Invalid status '%s' for host '%s'" % (host_status, host_name),
-                         hosts_conf_file,
-                         self._error_line(host_name_regexp)
-                    ))
+            
+            ### host status: required string
+            if not host_status in statuses:
+                errors.append(ConfParseError(
+                     "Invalid status '%s' for host '%s'" % (host_status, host_name),
+                     hosts_conf_file,
+                     self._error_line(host_name_regexp, hosts_conf_file)
+                ))
         # Returns all found errors
         return errors
 
+    def _error_line(self, regexp, conf_file):
+        if conf_file is None:
+            return 0
+        self._log.debug("conf_file = %s" % (conf_file))
+        f = open(conf_file)
+        try:
+            line_number = 1
+            for line in f:
+                if regexp.match(line):
+                    return line_number
+                line_number += 1
+            return 0
+        finally:
+            f.close()
+
     def _attribute_must_be_list_error(self, attribute, file):
-        ConfParseError(
+        return ConfParseError(
             "Attribute '%s' must be a list." % (attribute),
             file,
             self._error_line(re.compile(r'^' + attribute + r'\s*:'), file)

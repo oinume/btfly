@@ -5,7 +5,7 @@ import argparse
 import os
 import sys
 
-from btfly.conf import load_conf, ConfValidator, HostsManager
+from btfly.conf import load_conf, HostsManager
 from btfly.utils import create_logger
 from btfly.plugin_manager import PluginManager
 from btfly.task import BaseTask
@@ -75,20 +75,21 @@ class Main(object):
 
         conf = load_conf(self._options['conf'])
         hosts_conf = load_conf(self._options['hosts_conf'])
+        self._hosts_manager = HostsManager(conf, hosts_conf, self._log)
         
-        validator = ConfValidator()
-        validation_errors = validator.validate(
-            conf, hosts_conf,
+        validation_errors = self._hosts_manager.validate(
             self._options['conf'], self._options['hosts_conf']
         )
         if validation_errors:
             for e in validation_errors:
                 print >> sys.stderr, e.message
-        self._hosts_manager = HostsManager(conf, hosts_conf, self._log)
+            raise RuntimeError("There are some errors in configuration files.")
 
     def run(self, out=sys.stdout):
         # TODO:
+        # validation tests
         # HostsConf.values
+        # デフォルトのプラグイン作成(hosts生成)
         # バグ取り
         # hosts.yaml作成(Dev,Stg,Prd)
         # ディプロイスクリプト作成

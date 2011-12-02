@@ -21,7 +21,17 @@ class BaseTask(object):
 
     log = property(get_log, set_log)
 
-    def add_cli_options(self, arg_parser):
+    def add_arguments(self, subparsers):
+        """
+        Add an argument for this task.
+        $ btfly csv
+        """
+        return subparsers.add_parser(self.name, help=self.description)
+
+    def add_options(self, parser):
+        """
+        Add options for this task
+        """
         pass
 
     def execute(self):

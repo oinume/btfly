@@ -30,9 +30,13 @@ class PluginManager(object):
         
         self._log.debug("register task: '%s'" % (task.name))
         task.set_log(self._log)
+        # Define task argument with help
         subparser = task.add_arguments(self._arg_subparsers)
         if subparser is None:
             raise RuntimeError("task.add_arguments() must be return parser object. (task = '%s')" % task.name)
+        # Define task options
+        task.add_options(subparser)
+        # Set a callback method
         subparser.set_defaults(func=task.execute)
 
         self._tasks[task.name] = task

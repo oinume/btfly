@@ -3,10 +3,6 @@
 from btfly.task import BaseTask
 
 class CSV(BaseTask):
-    def add_arguments(self, subparsers):
-        p = subparsers.add_parser('csv', help="csv help")
-        return p
-
     def execute(self, context):
         self.log.debug("CSV task execute()")
         hosts_manager = context.hosts_manager
@@ -28,13 +24,26 @@ class CSV(BaseTask):
         return ','.join(values)
 
 class ShEnv(BaseTask):
-    def add_arguments(self, subparsers):
-        p = subparsers.add_parser('sh_env', help="sh_env help")
-        return p
+    def add_options(self, parser):
+        parser.add_argument(
+            '-E', '--env-name', help='Specify an environment name to output.'
+        )
 
+    def execute(self, context):
+        return ''
+# eval `BTFLY_ENV=production btfly --roles web --field ip env`
+# --> btfly_hosts=(127.0.0.1 192.168.1.2)
+# % btfly-foreach; do ssh $i uptime; done
+
+
+class Hosts(BaseTask):
     def execute(self, context):
         return ''
 
 def register(manager):
+    """
+    This function is called when this plugin is loaded.
+    """
     manager.register_task(CSV('csv', 'output as CSV.'))
     manager.register_task(ShEnv('sh_env', 'output as sh environment.'))
+    manager.register_task(Hosts('hosts', 'output as /etc/hosts format.'))

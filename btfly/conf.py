@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import with_statement
+import re
 from btfly.utils import create_logger
 
 def load_conf(file, options=None):
@@ -119,7 +120,6 @@ class HostsManager(object):
             f.close()
 
     def validate(self, conf_file=None, hosts_conf_file=None):
-        import re
         errors = []
         # statuses
         statuses = self.conf.get('statuses')

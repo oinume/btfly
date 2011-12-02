@@ -1,0 +1,5 @@
+statuses:
+  - ok
+  - ng
+# environments is not list
+environments: { production: [ 'prd' ] }

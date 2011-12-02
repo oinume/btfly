@@ -18,7 +18,7 @@ def create_invalid_hosts_manager(conf_file, hosts_conf_file):
     hosts_conf = load_conf(hosts_conf_file)
     return HostsManager(conf, hosts_conf, log)
 
-def test_00_validate():
+def test_00_validate_statuses():
     conf_file = os.path.join(TESTS_DIR, 'invalid_00_conf.yaml')
     hosts_conf_file = os.path.join(TESTS_DIR, 'hosts.yaml')
     hosts_manager = create_invalid_hosts_manager(conf_file, hosts_conf_file)
@@ -27,7 +27,7 @@ def test_00_validate():
     eq_(e.file, conf_file, "validate > statuses > file")
     eq_(e.message, "Attribute 'statuses' is not found.", "validate > statuses > message")
 
-def test_01_validate():
+def test_01_validate_statuses():
     conf_file = os.path.join(TESTS_DIR, 'invalid_01_conf.yaml')
     hosts_conf_file = os.path.join(TESTS_DIR, 'hosts.yaml')
     hosts_manager = create_invalid_hosts_manager(conf_file, hosts_conf_file)
@@ -35,6 +35,15 @@ def test_01_validate():
     e = errors[0]
     eq_(e.message, "Attribute 'statuses' is not list.", "validate > statuses > message")
     eq_(e.line, 2, "validate > statuses > line")
+
+def test_02_validate_environments():
+    conf_file = os.path.join(TESTS_DIR, 'invalid_02_conf.yaml')
+    hosts_conf_file = os.path.join(TESTS_DIR, 'hosts.yaml')
+    hosts_manager = create_invalid_hosts_manager(conf_file, hosts_conf_file)
+    errors = hosts_manager.validate(conf_file, hosts_conf_file)
+    e = errors[0]
+    eq_(e.message, "Attribute 'environments' is not list.", "validate > environments > message")
+    eq_(e.line, 5, "validate > environments > line")
 
 
 def test_10_names():

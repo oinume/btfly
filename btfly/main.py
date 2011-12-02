@@ -88,7 +88,6 @@ class Main(object):
 
     def run(self, out=sys.stdout):
         # TODO:
-        # validation
         # HostsConf.values
         # バグ取り
         # hosts.yaml作成(Dev,Stg,Prd)

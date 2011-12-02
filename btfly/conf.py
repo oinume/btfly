@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import with_statement
+import copy
 import re
 from btfly.utils import create_logger
 
@@ -90,6 +91,11 @@ class ConfParseError(Exception):
     def __repr__(self):
         return self.__str__()
 
+DEFAULT_ENVIRONMENTS = [
+    { 'production' : [ 'production' ] },
+    { 'staging'    : [ 'staging' ] },
+    { 'development': [ 'development' ] },
+]
 class HostsManager(object):
     def __init__(self, conf, hosts_conf, log):
         self._conf = conf
@@ -120,29 +126,106 @@ class HostsManager(object):
             f.close()
 
     def validate(self, conf_file=None, hosts_conf_file=None):
+        """
+        validate self.conf and self.hosts_conf with original files.
+        """
+
         errors = []
-        # statuses
+
+        ### statuses: required list->string
         statuses = self.conf.get('statuses')
         if statuses is None:
-            errors.append(ConfParseError("Attribute 'statuses' is not found.", conf_file, 0))
+            errors.append(ConfParseError("Attribute 'statuses' is required.", conf_file, 0))
         elif type(statuses).__name__ != 'list':
-            line = self._error_line(re.compile(r'^statuses\s*:'), conf_file)
-            errors.append(ConfParseError("Attribute 'statuses' is not list.", conf_file, line))
+            errors.append(self._attribute_must_be_list_error('statuses', conf_file))
 
-        # environments
+        ### environments: optional list->dict->list
         environments = self.conf.get('environments')
         if environments:
             if type(environments).__name__ != 'list':
-                line = self._error_line(re.compile(r'^environments\s*:'), conf_file)
-                errors.append(ConfParseError("Attribute 'environments' is not list.", conf_file, line))
+                errors.append(self._attribute_must_be_list_error('environments', conf_file))
         else:
-            environments = [
-                { 'production' : [ 'production' ] },
-                { 'staging'    : [ 'staging' ] },
-                { 'development': [ 'development' ] },
-            ]
+            environments = copy.deepcopy(DEFAULT_ENVIRONMENTS)
+            # Set default environments
+            self.conf['environments'] = environments
         
+        ### roles: optional list->dict
+        roles = self.hosts_conf.get('roles') or []
+        if roles:
+            if type(roles).__name__ != 'list':
+                errors.append(self._attribute_must_be_list_error('roles', conf_file))
+        else:
+            # Set default roles
+            self.hosts_conf['roles'] = []
+        
+        ### hosts: required
+        hosts = self.hosts_conf.get('hosts')
+        if hosts is None:
+            errors.append(ConfParseError("Attribute 'hosts' is required.", hosts_conf_file, 0))
+        elif type(hosts).__name__ != 'list':
+            errors.append(self._attribute_must_be_list_error('hosts', conf_file))
+        else:
+            for host in hosts:
+                ### host required dict
+                if type(host).__name__ != 'dict':
+                    errors.append(ConfParseError(
+                        "Host must be a hash type.",
+                        hosts_conf_file,
+                        None,
+                    ))
+
+                host_name = host.keys()[0]
+                attrs = host.values()[0]
+                host_name_regexp = re.compile(host_name + r'\s*:')
+                if type(attrs).__name__ != 'dict':
+                    errors.append(ConfParseError(
+                        "Host '%s' must have a hash." % (host_name),
+                        hosts_conf_file,
+                        self._error_line(host_name_regexp)
+                    ))
+                
+                # Check required attributes is defined.
+                for attribute in ('ip', 'roles', 'status'):
+                    if attrs.get(attribute) is None:
+                        errors.append(ConfParseError(
+                            "Attribute '%s' is required for host '%s'." % (attribute, host_name),
+                            hosts_conf_file,
+                            self._error_line(host_name_regexp)
+                        ))
+                
+                host_roles = attrs.get('roles')
+                host_status = attrs.get('status')
+                ### host roles: required list
+                if type(host_roles).__name__ != 'list':
+                    errors.append(ConfParseError(
+                        "Invalid type of roles for host '%s'" % (host_name),
+                        hosts_conf_file,
+                        self._error_line(host_name_regexp)
+                    ))
+                for host_role in host_roles:
+                    if not host_role in roles:
+                        errors.append(ConfParseError(
+                            "Invalid role '%s' for host '%s'" % (host_role, host_name),
+                            hosts_conf_file,
+                            self._error_line(host_name_regexp)
+                        ))
+                
+                ### host status: required string
+                if not host_status in statuses:
+                    errors.append(ConfParseError(
+                         "Invalid status '%s' for host '%s'" % (host_status, host_name),
+                         hosts_conf_file,
+                         self._error_line(host_name_regexp)
+                    ))
+        # Returns all found errors
         return errors
+
+    def _attribute_must_be_list_error(self, attribute, file):
+        ConfParseError(
+            "Attribute '%s' must be a list." % (attribute),
+            file,
+            self._error_line(re.compile(r'^' + attribute + r'\s*:'), file)
+        )
 
     def names(self, **kwargs):
         hosts = self._hosts_conf.get('hosts')

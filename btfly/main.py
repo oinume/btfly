@@ -86,16 +86,6 @@ class Main(object):
             raise RuntimeError("There are some errors in configuration files.")
 
     def run(self, out=sys.stdout):
-        # TODO:
-        # validation tests
-        # バグ取り
-        # sphinxでドキュメント書く
-        # pigg -----------------------
-        #  hosts.yaml作成(Dev,Stg,Prd)
-        #  ディプロイスクリプト作成
-        #  maven repo登録スクリプト作成
-        #  Flashタグ切りスクリプト作成
-
         # load tasks
         self._log.debug("options = %s" % (self._options))
         task = self._plugin_manager.task(self._options.get('task'))

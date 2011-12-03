@@ -88,12 +88,13 @@ class Main(object):
     def run(self, out=sys.stdout):
         # TODO:
         # validation tests
-        # デフォルトのプラグイン作成(hosts生成)
         # バグ取り
-        # hosts.yaml作成(Dev,Stg,Prd)
-        # ディプロイスクリプト作成
-        # maven repo登録スクリプト作成
-        # Flashタグ切りスクリプト作成
+        # sphinxでドキュメント書く
+        # pigg -----------------------
+        #  hosts.yaml作成(Dev,Stg,Prd)
+        #  ディプロイスクリプト作成
+        #  maven repo登録スクリプト作成
+        #  Flashタグ切りスクリプト作成
 
         # load tasks
         self._log.debug("options = %s" % (self._options))

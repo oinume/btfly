@@ -10,7 +10,7 @@ def load_conf(file, options=None):
     
     if file:
         type = None
-        for t, dict in type2loader.iteritems():
+        for t, dict in TYPE2LOADER.iteritems():
             for suffix in dict['file_suffixes']:
                 if file.endswith(suffix):
                     type = t
@@ -20,7 +20,7 @@ def load_conf(file, options=None):
         if type is None:
             raise ValueError("Unknown file type. File extension must be 'yaml', 'yml' or 'json'.")
 
-        loader_class = type2loader[type]['loader_class']
+        loader_class = TYPE2LOADER[type]['loader_class']
         return loader_class().load_file(file)
     else:
         # TODO
@@ -62,7 +62,7 @@ class JSONConfLoader(ConfLoader):
             json = __import__('simplejson')
         return json.loads(string)
 
-type2loader = {
+TYPE2LOADER = {
     'yaml': { 'file_suffixes': [ '.yml', '.yaml' ], 'loader_class': YAMLConfLoader, },
     'json': { 'file_suffixes': [ '.json' ], 'loader_class': JSONConfLoader },
 }
@@ -137,16 +137,25 @@ class HostsManager(object):
         self._log.debug("environments = %s" % (environments))
 
         ### roles: optional list->dict
-        roles = self.hosts_conf.get('roles') or []
+        roles = self.hosts_conf.get('roles') or [] # Contains role dict
+        role_names = [] # Contains just role names
         if roles:
-            if type(roles).__name__ != 'list':
+            if type(roles).__name__ == 'list':
+                for role in roles:
+                    if type(role).__name__ == 'dict':
+                        role_names.append(role.keys()[0])
+                    else:
+                        errors.append(ConfParseError(
+                            "A role record must be a hash.",
+                            hosts_conf_file,
+                            self._error_line(r'^roles\s*:', hosts_conf_file)
+                        ))
+            else:
                 errors.append(self._attribute_must_be_list_error('roles', hosts_conf_file))
         else:
             # Set default roles
             self.hosts_conf['roles'] = []
         #self._log.debug("roles = %s" % (roles))
-        role_names = [ role.keys()[0] for role in roles ]
-        self._log.debug("role_names = %s" % (role_names))
 
         ### hosts: required
         hosts = self.hosts_conf.get('hosts')
@@ -156,6 +165,8 @@ class HostsManager(object):
             errors.append(self._attribute_must_be_list_error('hosts', hosts_conf_file))
         
         if errors:
+            # If any errors found at this point,
+            # we cannot continue process, so return errors
             return errors
 
         for host in hosts:
@@ -214,6 +225,9 @@ class HostsManager(object):
         return errors
 
     def _error_line(self, regexp, conf_file):
+        """
+        Find a line number of error in `conf_file'
+        """
         if conf_file is None:
             return 0
         self._log.debug("conf_file = %s" % (conf_file))
@@ -235,64 +249,46 @@ class HostsManager(object):
             self._error_line(re.compile(r'^' + attribute + r'\s*:'), file)
         )
 
-    def names(self, **kwargs):
+    def host_names(self, **kwargs):
+        # Return names
+        return [ host.keys()[0] for host in self.hosts(**kwargs) ]
+
+    def ip_addresses(self, **kwargs):
+        # Return ips
+        return [ host.values()[0].get('ip') for host in self.hosts(**kwargs) ]
+
+    def hosts(self, **kwargs):
         hosts = self._hosts_conf.get('hosts')
-        target_roles = kwargs.get('roles') or []
-        target_statuses = kwargs.get('statuses') or []
+        target_roles = kwargs.get('roles')
+        target_statuses = kwargs.get('statuses')
         values, values_for_roles, values_for_statuses = [], [], []
         for host in hosts:
             name = host.keys()[0]
             attributes = host.values()[0]
-            roles = attributes.get('roles') or [] # TODO: normalize
-            status = attributes.get('status') or '' # TODO: ありえない
+            roles = attributes.get('roles')
+            status = attributes.get('status')
 
             # collect host names with specified roles
-            self._append_if_roles_matched(values_for_roles, target_roles, roles, name)
+            if target_roles:
+                for target_role in target_roles:
+                    if target_role in roles:
+                        values_for_roles.append(name)
             # collect host names with specified statuses
-            self._append_if_statuses_matched(values_for_statuses, target_statuses, status, name)
+            if target_statuses:
+                if status in target_statuses:
+                    values_for_statuses.append(name)
             # collect host names without any condition
             values.append(name)
-        return self.determine_values(
+        
+        target_host_names = self.determine_values(
             target_roles, target_statuses,
             values, values_for_roles, values_for_statuses
         )
-
-    def ip_addresses(self, **kwargs):
-        hosts = self._hosts_conf.get('hosts')
-        target_roles = kwargs.get('roles') or []
-        target_statuses = kwargs.get('statuses') or []
-        values, values_for_roles, values_for_statuses = [], [], []
+        target_hosts = []
         for host in hosts:
-            attributes = host.values()[0]
-            ip = attributes.get('ip') or '' # TODO: ありえない
-            roles = attributes.get('roles') or [] # TODO: normalize
-            status = attributes.get('status') or '' # TODO: ありえない
-
-            # collect host names with specified roles
-            self._append_if_roles_matched(values_for_roles, target_roles, roles, ip)
-            # collect host names with specified statuses
-            self._append_if_statuses_matched(values_for_statuses, target_statuses, status, ip)
-            # collect host names without any condition
-            values.append(ip)
-        return self.determine_values(
-            target_roles, target_statuses,
-            values, values_for_roles, values_for_statuses
-        )
-
-    def values(self):
-        pass
-
-    def _append_if_roles_matched(self, list, target_roles, roles, value):
-        # collect host names with specified roles
-        for target_role in target_roles:
-            for role in roles:
-                if role == target_role:
-                    list.append(value)
-
-    def _append_if_statuses_matched(self, list, target_statuses, status, value):
-        for target_status in target_statuses:
-            if status == target_status:
-                list.append(value)
+            if host.keys()[0] in target_host_names:
+                target_hosts.append(host)
+        return target_hosts
 
     def determine_values(self, target_roles, target_statuses,
                          values, values_for_roles, values_for_statuses):

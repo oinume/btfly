@@ -68,21 +68,20 @@ def test_04_validate_roles_and_hosts():
 
 # TODO: more tests (roles defined , status defined ...)
 
-def test_10_names():
+def test_10_host_names():
     conf = load_conf(os.path.join(TESTS_DIR, 'conf.yaml'))
     hosts_conf = load_conf(os.path.join(TESTS_DIR, 'hosts.yaml'))
     hosts_manager = HostsManager(conf, hosts_conf, log)
     eq_(
         [ 'web01', 'web02', 'web03', 'mdb01', 'sdb01', 'sdb02', 'sdb03' ],
-        hosts_manager.names(),
-        "names > all"
+        hosts_manager.host_names(),
+        "host_names > all"
     )
     eq_(
         [ 'web03' ],
-        hosts_manager.names(roles=[ 'web', 'master_db' ], statuses=[ 'dead' ]),
-        "names > roles, statuses"
+        hosts_manager.host_names(roles=[ 'web', 'master_db' ], statuses=[ 'dead' ]),
+        "host_names > roles, statuses"
     )
-    #print hosts_manager.names(roles=[ 'web', 'master_db' ], statuses=[ 'dead' ])
 
 def test_20_ip_addresses():
     conf = load_conf(os.path.join(TESTS_DIR, 'conf.yaml'))
@@ -93,6 +92,8 @@ def test_20_ip_addresses():
         hosts_manager.ip_addresses(roles=[ 'slave_db' ]),
         "ip_addresses > roles"
     )
+
+
 #    eq_(
 #        [ 'web03' ],
 #        hosts_manager.names(roles=[ 'web', 'master_db' ], statuses=[ 'dead' ]),

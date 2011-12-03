@@ -36,3 +36,20 @@ class BaseTask(object):
 
     def execute(self):
         pass
+
+    def get_values(self, context):
+        hosts_manager = context.hosts_manager
+        values = None
+        kwargs = {
+            'roles': context.options.get('roles'),
+            'statuses': context.options.get('statuses'),
+        }
+        if context.field == 'name':
+            values = hosts_manager.host_names(**kwargs)
+        elif context.field == 'ip':
+            values = hosts_manager.ip_addresses(**kwargs)
+        else:
+            raise ValueError("Invalid context.field: '%s'" % (context.field))
+        # TODO: check values are empty
+        self.log.debug("values = %s" % (values))
+        return values

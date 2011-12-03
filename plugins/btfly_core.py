@@ -6,21 +6,7 @@ class CSV(BaseTask):
     def execute(self, context):
         self.log.debug("CSV task execute()")
         hosts_manager = context.hosts_manager
-        values = []
-        if context.field == 'name':
-            values = hosts_manager.names(
-                roles=context.options.get('roles'),
-                statuses=context.options.get('statuses')
-            )
-        elif context.field == 'ip':
-            values = hosts_manager.ip_addresses(
-                roles=context.options.get('roles'),
-                statuses=context.options.get('statuses')
-            )
-        else:
-            raise ValueError("Invalid context.field: '%s'" % (context.field))
-
-        self.log.debug("values = %s" % values)
+        values = self.get_values(context)
         return ','.join(values)
 
 class ShEnv(BaseTask):
@@ -31,31 +17,27 @@ class ShEnv(BaseTask):
         )
 
     def execute(self, context):
-        hosts_manager = context.hosts_manager
+        values = self.get_values(context)
         env_name = context.options.get('env_name') or 'BTFLY_HOSTS'
-        if context.field == 'name':
-            values = hosts_manager.names(
-                roles=context.options.get('roles'),
-                statuses=context.options.get('statuses')
-            )
-        elif context.field == 'ip':
-            values = hosts_manager.ip_addresses(
-                roles=context.options.get('roles'),
-                statuses=context.options.get('statuses')
-            )
-        else:
-            raise ValueError("Invalid context.field: '%s'" % (context.field))
-
-        self.log.debug("values = %s" % values)
         return "%s=(%s)" % (env_name, ' '.join(values))
 # eval `BTFLY_ENV=production btfly --roles web --field ip env`
-# --> btfly_hosts=(127.0.0.1 192.168.1.2)
-# % btfly-foreach; do ssh $i uptime; done
-
+# --> BTFLY_HOSTS=(127.0.0.1 192.168.1.2)
+# % btfly_foreach; do ssh $i uptime; done
 
 class Hosts(BaseTask):
     def execute(self, context):
-        return ''
+        hosts_manager = context.hosts_manager
+        hosts = context.hosts_manager.hosts(
+            roles=context.options.get('roles'),
+            statuses=context.options.get('statuses'),
+        )
+        
+        s = "# Generated with btfly\n"
+        for host in hosts:
+            name = host.keys()[0] # TODO: host must be object
+            attributes = host.values()[0]
+            s += "%s %s\n" % (attributes.get('ip'), name)
+        return s.rstrip()
 
 def register(manager):
     """

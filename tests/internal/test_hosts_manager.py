@@ -72,7 +72,43 @@ def test_04_validate_roles_and_hosts():
     eq_(e.message, "Attribute 'hosts' must be a list.", "validate > hosts > message")
     eq_(e.line, 4, "validate > hosts > line")
 
-# TODO: more tests (roles defined , status defined ...)
+def test_05_validate_roles_entry_type():
+    invalid_hosts_conf_file = os.path.join(TESTS_DIR, 'invalid_roles_entry_type.yaml')
+    hosts_manager = create_invalid_hosts_manager(valid_conf_file, invalid_hosts_conf_file)
+    errors = hosts_manager.validate(valid_conf_file, invalid_hosts_conf_file)
+    e = errors[0]
+    eq_(e.message, "A role entry must be a hash.", "validate > roles > message")
+    eq_(e.line, 1, "validate > roles > line")
+
+def test_06_validate_host_type():
+    invalid_hosts_conf_file = os.path.join(TESTS_DIR, 'invalid_host_type.yaml')
+    hosts_manager = create_invalid_hosts_manager(valid_conf_file, invalid_hosts_conf_file)
+    errors = hosts_manager.validate(valid_conf_file, invalid_hosts_conf_file)
+    e = errors[0]
+    eq_(e.message, "'host' entry must be a hash.", "validate > host > message")
+    eq_(len(errors), 2, "validate > host > error count")
+
+def test_07_validate_host_attributes_type():
+    invalid_hosts_conf_file = os.path.join(TESTS_DIR, 'invalid_host_attributes_type.yaml')
+    hosts_manager = create_invalid_hosts_manager(valid_conf_file, invalid_hosts_conf_file)
+    errors = hosts_manager.validate(valid_conf_file, invalid_hosts_conf_file)
+    e = errors[0]
+    eq_(e.message, "Host 'localhost' must have a hash.", "validate > host > attribute > message")
+    # TODO: bug
+    #eq_(e.line, 11, "validate > host > line")
+
+def test_08_validate_host_attributes():
+    invalid_hosts_conf_file = os.path.join(TESTS_DIR, 'invalid_host_attributes_required.yaml')
+    hosts_manager = create_invalid_hosts_manager(valid_conf_file, invalid_hosts_conf_file)
+    errors = hosts_manager.validate(valid_conf_file, invalid_hosts_conf_file)
+    e = errors[0]
+    eq_(
+        e.message,
+        "Attribute 'ip' is required for host 'localhost'",
+        "validate > host > attribute > message"
+    )
+    #eq_(e.line, 11, "validate > host > attribute > line")
+
 
 def test_10_host_names():
     conf = load_conf(os.path.join(TESTS_DIR, 'conf.yaml'))

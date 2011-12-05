@@ -4,7 +4,7 @@ roles:
   - slave_db:  { description: 'slave database' }
   - memcached: { description: 'memcached' }
 hosts:
-  - web01: { ip: '192.168.1.10', roles: [ 'web', 'memcached' ], status: 'active' }
-  - db01:  { ip: '192.168.1.50', roles: [ 'master_db' ], status: 'active' }
-  - db02:  { ip: '192.168.1.60', roles: [ 'slave_db' ], status: 'active' }
-  - db03:  { ip: '192.168.1.61', roles: [ 'slave_db' ], status: 'out' }
+  - web01: { ip: '192.168.1.10', status: 'active', roles: [ 'web', 'memcached' ] }
+  - db01:  { ip: '192.168.1.50', status: 'active', roles: [ 'master_db' ] }
+  - db02:  { ip: '192.168.1.60', status: 'active', roles: [ 'slave_db' ] }
+  - db03:  { ip: '192.168.1.61', status: 'out',    roles: [ 'slave_db' ] }

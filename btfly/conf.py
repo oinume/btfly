@@ -146,16 +146,16 @@ class HostsManager(object):
                         role_names.append(role.keys()[0])
                     else:
                         errors.append(ConfParseError(
-                            "A role record must be a hash.",
+                            "A role entry must be a hash.",
                             hosts_conf_file,
-                            self._error_line(r'^roles\s*:', hosts_conf_file)
+                            self._error_line(re.compile(r'^roles\s*:'), hosts_conf_file)
                         ))
             else:
                 errors.append(self._attribute_must_be_list_error('roles', hosts_conf_file))
         else:
             # Set default roles
             self.hosts_conf['roles'] = []
-        #self._log.debug("roles = %s" % (roles))
+        self._log.debug("role_names = %s" % (role_names))
 
         ### hosts: required
         hosts = self.hosts_conf.get('hosts')
@@ -174,29 +174,36 @@ class HostsManager(object):
             ### host required dict
             if type(host).__name__ != 'dict':
                 errors.append(ConfParseError(
-                    "Host must be a hash type.",
+                    "'host' entry must be a hash.",
                     hosts_conf_file,
                     None,
                 ))
+                # We cannot continue validation
+                continue
 
             host_name = host.keys()[0]
             attrs = host.values()[0]
-            host_name_regexp = re.compile(host_name + r'\s*:')
+            host_name_regexp = re.compile(host_name) # TODO: cannot find line no bug.
             if type(attrs).__name__ != 'dict':
                 errors.append(ConfParseError(
                     "Host '%s' must have a hash." % (host_name),
                     hosts_conf_file,
                     self._error_line(host_name_regexp, hosts_conf_file)
                 ))
+                continue
             
             # Check required attributes is defined.
-            for attribute in ('ip', 'roles', 'status'):
+            attribute_required_error = False
+            for attribute in ('ip', 'status', 'roles'):
                 if attrs.get(attribute) is None:
                     errors.append(ConfParseError(
-                        "Attribute '%s' is required for host '%s'." % (attribute, host_name),
+                        "Attribute '%s' is required for host '%s'" % (attribute, host_name),
                         hosts_conf_file,
                         self._error_line(host_name_regexp, hosts_conf_file)
                     ))
+                    attribute_required_error = True
+            if attribute_required_error:
+                continue
             
             host_roles = attrs.get('roles')
             host_status = attrs.get('status')
@@ -225,7 +232,7 @@ class HostsManager(object):
             
             if host_name in host_names:
                 errors.append(ConfParseError(
-                     "Duplicated host.name '%s'." % (host_name),
+                     "Duplicated name for host '%s'" % (host_name),
                      hosts_conf_file,
                      self._error_line(host_name_regexp, hosts_conf_file)
                 ))

@@ -30,7 +30,7 @@ hosts.yaml::
 
 まず上記の hosts.yaml を conf ディレクトリに作成しておく。そして btfly コマンドを実行する ::
 
-  $ btfly sh_env
+  $ btfly env
 
 これにより::
 
@@ -38,7 +38,7 @@ hosts.yaml::
 
 が出力される。この出力をevalすることで、全てのサーバに ssh で uptime を実行することが可能になる。 ::
 
-  $ eval `btfly sh_env`
+  $ eval `btfly env`
   $ for host in ${BTFLY_HOSTS[@]}; do ssh $host uptime; done
 
 条件をつける
@@ -46,7 +46,7 @@ hosts.yaml::
 
 --roles ::
 
-  $ eval `btfly sh_env --roles slave_db`
+  $ eval `btfly env --roles slave_db`
   $ echo $BTFLY_HOSTS
   >>> db02 db03
 
@@ -54,7 +54,7 @@ hosts.yaml::
 
 --statuses ::
 
-  $ eval `btfly sh_env --statuses active
+  $ eval `btfly env --statuses active
   $ echo $BTFLY_HOSTS
   >>> web01 db01 db02
 

@@ -9,7 +9,7 @@ class CSV(BaseTask):
         values = self.get_values(context)
         return ','.join(values)
 
-class ShEnv(BaseTask):
+class Env(BaseTask):
     def add_options(self, parser):
         parser.add_argument(
             '-E', '--env-name', default='BTFLY_HOSTS',
@@ -44,5 +44,5 @@ def register(manager):
     This function is called when this plugin is loaded.
     """
     manager.register_task(CSV('csv', 'output as CSV.'))
-    manager.register_task(ShEnv('sh_env', 'output as sh environment.'))
+    manager.register_task(Env('env', 'output as sh environment.'))
     manager.register_task(Hosts('hosts', 'output as /etc/hosts format.'))

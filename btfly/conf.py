@@ -136,8 +136,8 @@ class HostsManager(object):
             self.conf['environments'] = environments
         self._log.debug("environments = %s" % (environments))
 
-        ### roles: optional list->dict
-        roles = self.hosts_conf.get('roles') or [] # Contains role dict
+        ### roles: required list->dict
+        roles = self.conf.get('roles') or [] # Contains role dict
         role_names = [] # Contains just role names
         if roles:
             if type(roles).__name__ == 'list':
@@ -148,10 +148,10 @@ class HostsManager(object):
                         errors.append(ConfParseError(
                             "A role entry must be a hash.",
                             hosts_conf_file,
-                            self._error_line(re.compile(r'^roles\s*:'), hosts_conf_file)
+                            self._error_line(re.compile(r'^roles\s*:'), conf_file)
                         ))
             else:
-                errors.append(self._attribute_must_be_list_error('roles', hosts_conf_file))
+                errors.append(self._attribute_must_be_list_error('roles', conf_file))
         else:
             # Set default roles
             self.hosts_conf['roles'] = []

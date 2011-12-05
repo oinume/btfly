@@ -3,5 +3,5 @@ statuses:
   - troubled
   - out
   - dead
-roles:
-  - [ 'description' ] # not hash
+# roles is not list
+roles: { a: b }

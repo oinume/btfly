@@ -52,35 +52,47 @@ def test_03_validate_no_environments():
     conf_file = os.path.join(TESTS_DIR, 'no_environments_conf.yaml')
     hosts_manager = create_invalid_hosts_manager(conf_file, valid_hosts_conf_file)
     errors = hosts_manager.validate(conf_file, valid_hosts_conf_file)
+    log.debug("errors = %s" % errors)
     eq_(len(errors), 0, "validate > environments > no environments")
 
-def test_03_validate_hosts():
+def test_04_validate_roles(): # not list, invalid roles type
+    # TODO: 他のテストまとめる
+    invalid_conf_file = os.path.join(TESTS_DIR, 'invalid_roles_not_list.yaml')
+    hosts_manager = create_invalid_hosts_manager(
+        invalid_conf_file,
+        valid_hosts_conf_file
+    )
+    errors = hosts_manager.validate(invalid_conf_file, valid_hosts_conf_file)
+    e = errors[0]
+    eq_(e.message, "Attribute 'roles' must be a list.", "validate > roles > message")
+    eq_(e.line, 7, "validate > roles > line")
+
+    invalid_conf_file = os.path.join(TESTS_DIR, 'invalid_roles_entry_type.yaml')
+    hosts_manager = create_invalid_hosts_manager(
+        invalid_conf_file,
+        valid_hosts_conf_file
+    )
+    errors = hosts_manager.validate(invalid_conf_file, valid_hosts_conf_file)
+    e = errors[0]
+    eq_(e.message, "A role entry must be a hash.", "validate > roles > message")
+    eq_(e.line, 6, "validate > roles > line")
+
+def test_04_validate_hosts():
     invalid_hosts_conf_file = os.path.join(TESTS_DIR, 'invalid_no_hosts.yaml')
     hosts_manager = create_invalid_hosts_manager(valid_conf_file, invalid_hosts_conf_file)
     errors = hosts_manager.validate(valid_conf_file, invalid_hosts_conf_file)
     e = errors[0]
     eq_(e.message, "Attribute 'hosts' is required.", "validate > hosts > message")
 
-def test_04_validate_roles_and_hosts():
-    invalid_hosts_conf_file = os.path.join(TESTS_DIR, 'invalid_hosts_roles_type.yaml')
+def test_05_validate_hosts():
+    invalid_hosts_conf_file = os.path.join(TESTS_DIR, 'invalid_hosts_type.yaml')
     hosts_manager = create_invalid_hosts_manager(valid_conf_file, invalid_hosts_conf_file)
     errors = hosts_manager.validate(valid_conf_file, invalid_hosts_conf_file)
     e = errors[0]
-    eq_(e.message, "Attribute 'roles' must be a list.", "validate > roles > message")
-    eq_(e.line, 2, "validate > roles > line")
-    e = errors[1]
     eq_(e.message, "Attribute 'hosts' must be a list.", "validate > hosts > message")
-    eq_(e.line, 4, "validate > hosts > line")
+    eq_(e.line, 2, "validate > hosts > line")
 
-def test_05_validate_roles_entry_type():
-    invalid_hosts_conf_file = os.path.join(TESTS_DIR, 'invalid_roles_entry_type.yaml')
-    hosts_manager = create_invalid_hosts_manager(valid_conf_file, invalid_hosts_conf_file)
-    errors = hosts_manager.validate(valid_conf_file, invalid_hosts_conf_file)
-    e = errors[0]
-    eq_(e.message, "A role entry must be a hash.", "validate > roles > message")
-    eq_(e.line, 1, "validate > roles > line")
-
-def test_06_validate_host_type():
+def test_07_validate_host_type():
     invalid_hosts_conf_file = os.path.join(TESTS_DIR, 'invalid_host_type.yaml')
     hosts_manager = create_invalid_hosts_manager(valid_conf_file, invalid_hosts_conf_file)
     errors = hosts_manager.validate(valid_conf_file, invalid_hosts_conf_file)
@@ -88,7 +100,7 @@ def test_06_validate_host_type():
     eq_(e.message, "'host' entry must be a hash.", "validate > host > message")
     eq_(len(errors), 2, "validate > host > error count")
 
-def test_07_validate_duplicated_host_name():
+def test_08_validate_duplicated_host_name():
     invalid_hosts_conf_file = os.path.join(TESTS_DIR, 'invalid_duplicated_host_name.yaml')
     hosts_manager = create_invalid_hosts_manager(valid_conf_file, invalid_hosts_conf_file)
     errors = hosts_manager.validate(valid_conf_file, invalid_hosts_conf_file)
@@ -100,7 +112,7 @@ def test_07_validate_duplicated_host_name():
     )
     #eq_(e.line, 11, "validate > host > attribute > line")
 
-def test_08_validate_host_attributes_type():
+def test_09_validate_host_attributes_type():
     invalid_hosts_conf_file = os.path.join(TESTS_DIR, 'invalid_host_attributes_type.yaml')
     hosts_manager = create_invalid_hosts_manager(valid_conf_file, invalid_hosts_conf_file)
     errors = hosts_manager.validate(valid_conf_file, invalid_hosts_conf_file)
@@ -109,7 +121,7 @@ def test_08_validate_host_attributes_type():
     # TODO: bug
     #eq_(e.line, 11, "validate > host > line")
 
-def test_09_validate_host_attributes():
+def test_10_validate_host_attributes():
     invalid_hosts_conf_file = os.path.join(TESTS_DIR, 'invalid_host_attributes_required.yaml')
     hosts_manager = create_invalid_hosts_manager(valid_conf_file, invalid_hosts_conf_file)
     errors = hosts_manager.validate(valid_conf_file, invalid_hosts_conf_file)
@@ -121,7 +133,7 @@ def test_09_validate_host_attributes():
     )
     #eq_(e.line, 11, "validate > host > attribute > line")
 
-def test_10_validate_host_status_name():
+def test_11_validate_host_status_name():
     invalid_hosts_conf_file = os.path.join(TESTS_DIR, 'invalid_host_status_name.yaml')
     hosts_manager = create_invalid_hosts_manager(valid_conf_file, invalid_hosts_conf_file)
     errors = hosts_manager.validate(valid_conf_file, invalid_hosts_conf_file)
@@ -133,7 +145,7 @@ def test_10_validate_host_status_name():
     )
     #eq_(e.line, 11, "validate > host > attribute > line")
 
-def test_11_validate_host_roles_type():
+def test_12_validate_host_roles_type():
     invalid_hosts_conf_file = os.path.join(TESTS_DIR, 'invalid_host_roles_type.yaml')
     hosts_manager = create_invalid_hosts_manager(valid_conf_file, invalid_hosts_conf_file)
     errors = hosts_manager.validate(valid_conf_file, invalid_hosts_conf_file)
@@ -146,7 +158,7 @@ def test_11_validate_host_roles_type():
     eq_(len(errors), 2, "validate > host > roles > error count")
     #eq_(e.line, 11, "validate > host > attribute > line")
 
-def test_12_validate_host_role_name():
+def test_13_validate_host_role_name():
     invalid_hosts_conf_file = os.path.join(TESTS_DIR, 'invalid_host_role_name.yaml')
     hosts_manager = create_invalid_hosts_manager(valid_conf_file, invalid_hosts_conf_file)
     errors = hosts_manager.validate(valid_conf_file, invalid_hosts_conf_file)

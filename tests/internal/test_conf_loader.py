@@ -15,6 +15,9 @@ statuses: [ 'active', 'troubled' ]
 environments:
   - { production: [ 'production', 'prd' ] }
   - { development: [ 'development', 'dev' ] }
+roles:
+  - web: { description: 'web server' }
+  - memcached: { description: 'memcached' }
 """.strip())
 
     expected = {
@@ -22,6 +25,10 @@ environments:
         'environments': [
             { 'production': [ 'production', 'prd' ] },
             { 'development': [ 'development', 'dev' ] },
+        ],
+        'roles': [
+            { 'web': { 'description': 'web server' } },
+            { 'memcached': { 'description': 'memcached' } },
         ]
     }
     eq_(expected, object, "YAMLConfLoader.load()")
@@ -33,14 +40,22 @@ def test_02_load_json():
 "environments": [
     { "production": [ "production", "prd" ] },
     { "development": [ "development", "dev" ] }
+],
+"roles": [
+    { "web": { "description": "web server" } },
+    { "memcached":  { "description": "memcached" } }
 ]
-} """.strip())
+}""".strip())
 
     expected = {
         'statuses': [ 'active', 'troubled' ],
         'environments': [
             { 'production': [ 'production', 'prd' ] },
             { 'development': [ 'development', 'dev' ] },
+        ],
+        'roles': [
+            { 'web': { 'description': 'web server' } },
+            { 'memcached': { 'description': 'memcached' } },
         ]
     }
     eq_(expected, object, "JSONConfLoader.load()")

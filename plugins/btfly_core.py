@@ -1,11 +1,8 @@
 # -*- coding: utf-8 -*-
-
 from btfly.task import BaseTask
 
 class CSV(BaseTask):
     def execute(self, context):
-        self.log.debug("CSV task execute()")
-        hosts_manager = context.hosts_manager
         values = self.get_values(context)
         return ','.join(values)
 
@@ -26,7 +23,6 @@ class Env(BaseTask):
 
 class Hosts(BaseTask):
     def execute(self, context):
-        hosts_manager = context.hosts_manager
         hosts = context.hosts_manager.hosts(
             roles=context.options.get('roles'),
             statuses=context.options.get('statuses'),
@@ -43,6 +39,6 @@ def register(manager):
     """
     This function is called when this plugin is loaded.
     """
-    manager.register_task(CSV('csv', 'output as CSV.'))
-    manager.register_task(Env('env', 'output as sh environment.'))
-    manager.register_task(Hosts('hosts', 'output as /etc/hosts format.'))
+    manager.register_task(CSV('csv', "output as CSV."))
+    manager.register_task(Env('env', "output as sh environment."))
+    manager.register_task(Hosts('hosts', "output as /etc/hosts format."))

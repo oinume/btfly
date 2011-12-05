@@ -1,0 +1,11 @@
+roles:
+  - web:
+      description: 'web server'
+  - master_db:
+      description: 'master database'
+  - slave_db:
+      description: 'slave database'
+  - memcached:
+      description: 'memcached'
+hosts:
+  - web01: { ip: '192.168.1.10', status: 'not_defined', roles: [ 'web' ] } # not_defined is not defined.

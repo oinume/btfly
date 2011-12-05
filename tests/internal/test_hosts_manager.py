@@ -88,7 +88,19 @@ def test_06_validate_host_type():
     eq_(e.message, "'host' entry must be a hash.", "validate > host > message")
     eq_(len(errors), 2, "validate > host > error count")
 
-def test_07_validate_host_attributes_type():
+def test_07_validate_duplicated_host_name():
+    invalid_hosts_conf_file = os.path.join(TESTS_DIR, 'invalid_duplicated_host_name.yaml')
+    hosts_manager = create_invalid_hosts_manager(valid_conf_file, invalid_hosts_conf_file)
+    errors = hosts_manager.validate(valid_conf_file, invalid_hosts_conf_file)
+    e = errors[0]
+    eq_(
+        e.message,
+        "Duplicated name for host 'web01'",
+        "validate > host > message"
+    )
+    #eq_(e.line, 11, "validate > host > attribute > line")
+
+def test_08_validate_host_attributes_type():
     invalid_hosts_conf_file = os.path.join(TESTS_DIR, 'invalid_host_attributes_type.yaml')
     hosts_manager = create_invalid_hosts_manager(valid_conf_file, invalid_hosts_conf_file)
     errors = hosts_manager.validate(valid_conf_file, invalid_hosts_conf_file)
@@ -97,7 +109,7 @@ def test_07_validate_host_attributes_type():
     # TODO: bug
     #eq_(e.line, 11, "validate > host > line")
 
-def test_08_validate_host_attributes():
+def test_09_validate_host_attributes():
     invalid_hosts_conf_file = os.path.join(TESTS_DIR, 'invalid_host_attributes_required.yaml')
     hosts_manager = create_invalid_hosts_manager(valid_conf_file, invalid_hosts_conf_file)
     errors = hosts_manager.validate(valid_conf_file, invalid_hosts_conf_file)
@@ -109,8 +121,45 @@ def test_08_validate_host_attributes():
     )
     #eq_(e.line, 11, "validate > host > attribute > line")
 
+def test_10_validate_host_status_name():
+    invalid_hosts_conf_file = os.path.join(TESTS_DIR, 'invalid_host_status_name.yaml')
+    hosts_manager = create_invalid_hosts_manager(valid_conf_file, invalid_hosts_conf_file)
+    errors = hosts_manager.validate(valid_conf_file, invalid_hosts_conf_file)
+    e = errors[0]
+    eq_(
+        e.message,
+        "Invalid status 'not_defined' for host 'web01'",
+        "validate > host > status > message"
+    )
+    #eq_(e.line, 11, "validate > host > attribute > line")
 
-def test_10_host_names():
+def test_11_validate_host_roles_type():
+    invalid_hosts_conf_file = os.path.join(TESTS_DIR, 'invalid_host_roles_type.yaml')
+    hosts_manager = create_invalid_hosts_manager(valid_conf_file, invalid_hosts_conf_file)
+    errors = hosts_manager.validate(valid_conf_file, invalid_hosts_conf_file)
+    e = errors[0]
+    eq_(
+        e.message,
+        "Invalid type of roles for host 'web01'",
+        "validate > host > roles > message"
+    )
+    eq_(len(errors), 2, "validate > host > roles > error count")
+    #eq_(e.line, 11, "validate > host > attribute > line")
+
+def test_12_validate_host_role_name():
+    invalid_hosts_conf_file = os.path.join(TESTS_DIR, 'invalid_host_role_name.yaml')
+    hosts_manager = create_invalid_hosts_manager(valid_conf_file, invalid_hosts_conf_file)
+    errors = hosts_manager.validate(valid_conf_file, invalid_hosts_conf_file)
+    e = errors[0]
+    eq_(
+        e.message,
+        "Invalid role 'no_role' for host 'web01'",
+        "validate > host > roles > message"
+    )
+    #eq_(e.line, 11, "validate > host > attribute > line")
+
+
+def test_20_host_names():
     conf = load_conf(os.path.join(TESTS_DIR, 'conf.yaml'))
     hosts_conf = load_conf(os.path.join(TESTS_DIR, 'hosts.yaml'))
     hosts_manager = HostsManager(conf, hosts_conf, log)
@@ -125,7 +174,7 @@ def test_10_host_names():
         "host_names > roles, statuses"
     )
 
-def test_20_ip_addresses():
+def test_30_ip_addresses():
     conf = load_conf(os.path.join(TESTS_DIR, 'conf.yaml'))
     hosts_conf = load_conf(os.path.join(TESTS_DIR, 'hosts.yaml'))
     hosts_manager = HostsManager(conf, hosts_conf, log)
@@ -134,8 +183,6 @@ def test_20_ip_addresses():
         hosts_manager.ip_addresses(roles=[ 'slave_db' ]),
         "ip_addresses > roles"
     )
-
-
 #    eq_(
 #        [ 'web03' ],
 #        hosts_manager.names(roles=[ 'web', 'master_db' ], statuses=[ 'dead' ]),

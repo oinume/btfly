@@ -192,6 +192,14 @@ class HostsManager(object):
                 ))
                 continue
             
+            if host_name in host_names:
+                errors.append(ConfParseError(
+                     "Duplicated name for host '%s'" % (host_name),
+                     hosts_conf_file,
+                     self._error_line(host_name_regexp, hosts_conf_file)
+                ))
+            host_names.append(host_name)
+
             # Check required attributes is defined.
             attribute_required_error = False
             for attribute in ('ip', 'status', 'roles'):
@@ -205,23 +213,7 @@ class HostsManager(object):
             if attribute_required_error:
                 continue
             
-            host_roles = attrs.get('roles')
             host_status = attrs.get('status')
-            ### host roles: required list
-            if type(host_roles).__name__ != 'list':
-                errors.append(ConfParseError(
-                    "Invalid type of roles for host '%s'" % (host_name),
-                    hosts_conf_file,
-                    self._error_line(host_name_regexp, hosts_conf_file)
-                ))
-            for host_role in host_roles:
-                if not host_role in role_names:
-                    errors.append(ConfParseError(
-                        "Invalid role '%s' for host '%s'" % (host_role, host_name),
-                        hosts_conf_file,
-                        self._error_line(host_name_regexp, hosts_conf_file)
-                    ))
-            
             ### host status: required string
             if not host_status in statuses:
                 errors.append(ConfParseError(
@@ -230,13 +222,24 @@ class HostsManager(object):
                      self._error_line(host_name_regexp, hosts_conf_file)
                 ))
             
-            if host_name in host_names:
+            host_roles = attrs.get('roles')
+            ### host roles: required list
+            if type(host_roles).__name__ != 'list':
                 errors.append(ConfParseError(
-                     "Duplicated name for host '%s'" % (host_name),
-                     hosts_conf_file,
-                     self._error_line(host_name_regexp, hosts_conf_file)
+                    "Invalid type of roles for host '%s'" % (host_name),
+                    hosts_conf_file,
+                    self._error_line(host_name_regexp, hosts_conf_file)
                 ))
-            host_names.append(host_name)
+                continue
+            
+            for host_role in host_roles:
+                if not host_role in role_names:
+                    errors.append(ConfParseError(
+                        "Invalid role '%s' for host '%s'" % (host_role, host_name),
+                        hosts_conf_file,
+                        self._error_line(host_name_regexp, hosts_conf_file)
+                    ))
+            
 
         # Returns all found errors
         return errors

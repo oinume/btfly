@@ -65,9 +65,8 @@ class Main(object):
         # plugin_dirsはconf.get()で決定される(confじゃなくて環境変数BTFLY_PLUGIN_PATHを定義するか？)
         # (os.pathsepつかう)
         plugin_manager = PluginManager(log, parser)
-        plugin_dirs = [ os.path.join(home_dir, 'plugins') ]
         # load tasks
-        plugin_manager.load_plugins(plugin_dirs)
+        plugin_manager.load_plugins(self.plugin_dirs(home_dir))
         log.debug("All plugins are loaded.")
 
         self._arg_parser = parser
@@ -112,7 +111,7 @@ class Main(object):
         output = self._args.func(context)
         print >>out, output
 
-# eval `BTFLY_ENV=production btfly --roles web --field ip sh_env`
+# eval `BTFLY_ENV=production btfly --roles web --field ip env`
 # --> btfly_hosts=(127.0.0.1 192.168.1.2)
 # % btfly-foreach; do ssh $i uptime; done
 #
@@ -134,3 +133,18 @@ class Main(object):
         if not path:
             path = os.path.join(conf_dir, 'hosts.yaml')
         return path
+
+    def plugin_dirs(self, home_dir):
+        plugin_dirs = []
+        plugin_path = os.getenv('BTFLY_PLUGIN_PATH')
+        if plugin_path:
+            for path in plugin_path.split(os.pathsep):
+                if os.path.isdir(path):
+                    plugin_dirs.append(path)
+                    self._log.debug("Appended plugin path '%s'." % (path))
+                else:
+                    self._log.warn("Plugin path '%s' not found. Ignored." % path)
+        plugin_dirs.append(os.path.join(home_dir, 'plugins'))
+        self._log.debug("plugin_dirs = %s" % plugin_dirs)
+        return plugin_dirs
+

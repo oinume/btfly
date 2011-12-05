@@ -1,11 +1,11 @@
 * validation tests
-** host.nameがユニークか
 ** role, statusがユニークか
 * BTFLY_ENV=production でproductionのyamlをロードするように
 ** conf/hosts_production.yaml, conf/hosts_prd.yaml
 ** conf/hosts_dev.yaml
 ** conf/conf.yamlはそのまま
-* --output 実装
+* --output=file 実装
+* btfly check_conf 実装
 * ソース内のTODO解決
 * 網羅的なテスト(coverageで)
 * sphinxでドキュメント書く

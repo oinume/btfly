@@ -18,7 +18,7 @@ class Context(object):
         self.field = field
 
 class Main(object):
-    def __init__(self, file, home_dir):
+    def __init__(self, file, home_dir, commandline_args=sys.argv[1:]):
         default_conf_dir = os.path.join(home_dir, 'conf')
 
         parser = argparse.ArgumentParser(
@@ -36,6 +36,9 @@ class Main(object):
         parser.add_argument(
             '-H', '--hosts-conf', default=default_hosts_conf_path,
             help='Hosts configuration file path. (default: %s)' % (default_hosts_conf_path)
+        )
+        parser.add_argument(
+            '-s', '--statuses', help='Specify statues.'
         )
         parser.add_argument(
             '-r', '--roles', help='Specify roles.'
@@ -68,10 +71,17 @@ class Main(object):
         log.debug("All plugins are loaded.")
 
         self._arg_parser = parser
-        self._args = parser.parse_args()
+        self._args = parser.parse_args(commandline_args)
         self._options = self._args.__dict__
         self._log = log
         self._plugin_manager = plugin_manager
+
+        if self._options.get('statuses'):
+            self._options['statuses_list'] = \
+                [ s.strip() for s in self._options.get('statuses').split(',') ]
+        if self._options.get('roles'):
+            self._options['roles_list'] = \
+                [ s.strip() for s in self._options.get('roles').split(',') ]
 
         conf = load_conf(self._options['conf'])
         hosts_conf = load_conf(self._options['hosts_conf'])
@@ -102,7 +112,7 @@ class Main(object):
         output = self._args.func(context)
         print >>out, output
 
-# eval `BTFLY_ENV=production btfly --roles web --field ip env`
+# eval `BTFLY_ENV=production btfly --roles web --field ip sh_env`
 # --> btfly_hosts=(127.0.0.1 192.168.1.2)
 # % btfly-foreach; do ssh $i uptime; done
 #

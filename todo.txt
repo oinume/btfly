@@ -1,16 +1,13 @@
 * validation tests
-* rolesを conf/conf.yaml に移動
 ** role, statusがユニークか
-* BTFLY_ENV=production でproductionのyamlをロードするように
-** conf/hosts_production.yaml, conf/hosts_prd.yaml
-** conf/hosts_dev.yaml
-** conf/conf.yamlはそのまま
 * --output=file 実装
 * --roles で指定されたものが存在するか
 * --statuses で指定されたものが存在するか
-* btfly check_conf 実装
 * ソース内のTODO解決
+* btfly check_conf 実装
+* BTFLY_PLUGIN_PATH=plugins を定義できるようにする
 * 網羅的なテスト(coverageで)
+** テスト関数をまとめる
 * sphinxでドキュメント書く
 * パッケージングの準備
 p -----------------------

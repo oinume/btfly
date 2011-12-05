@@ -21,18 +21,25 @@ class Main(object):
     def __init__(self, file, home_dir, commandline_args=sys.argv[1:]):
         default_conf_dir = os.path.join(home_dir, 'conf')
 
+        log = None
+        env_debug = os.getenv('BTFLY_DEBUG') or '0'
+        if env_debug == '1' or env_debug.lower() == 'true':
+            log = create_logger(True)
+        else:
+            log = create_logger(False)
+        self._log = log
+
         parser = argparse.ArgumentParser(
             prog = os.path.basename(file),
             description = "A micro host management program.",
             conflict_handler = 'resolve'
         )
-
         default_conf_path = os.path.join(default_conf_dir, 'conf.yaml')
         parser.add_argument(
             '-c', '--conf', default=default_conf_path,
             help='Configuration file path. (default: %s)' % (default_conf_path)
         )
-        default_hosts_conf_path = os.path.join(default_conf_dir, 'hosts.yaml')
+        default_hosts_conf_path = self.default_hosts_conf_path(default_conf_dir)
         parser.add_argument(
             '-H', '--hosts-conf', default=default_hosts_conf_path,
             help='Hosts configuration file path. (default: %s)' % (default_hosts_conf_path)
@@ -54,13 +61,6 @@ class Main(object):
         self._home_dir = home_dir
         self._file = file
 
-        log = None
-        env_debug = os.getenv('BTFLY_DEBUG') or '0'
-        if env_debug == '1' or env_debug.lower() == 'true':
-            log = create_logger(True)
-        else:
-            log = create_logger(False)
-
         # TODO: プラグインをロードするタイミングとparse_args()を呼ぶ順番どうするか決める
         # plugin_dirsはconf.get()で決定される(confじゃなくて環境変数BTFLY_PLUGIN_PATHを定義するか？)
         # (os.pathsepつかう)
@@ -73,7 +73,6 @@ class Main(object):
         self._arg_parser = parser
         self._args = parser.parse_args(commandline_args)
         self._options = self._args.__dict__
-        self._log = log
         self._plugin_manager = plugin_manager
 
         if self._options.get('statuses'):
@@ -83,6 +82,7 @@ class Main(object):
             self._options['roles_list'] = \
                 [ s.strip() for s in self._options.get('roles').split(',') ]
 
+        # Load configuration
         conf = load_conf(self._options['conf'])
         hosts_conf = load_conf(self._options['hosts_conf'])
         self._hosts_manager = HostsManager(conf, hosts_conf, self._log)
@@ -123,3 +123,14 @@ class Main(object):
 #
 # btfly-rsync pigg_files /usr/local/pigg_files/
 
+    def default_hosts_conf_path(self, conf_dir):
+        path = None
+        if os.getenv('BTFLY_ENV'):
+            # If BTFLY_ENV=production is defined, load 'hosts_production.yaml'
+            path = os.path.join(conf_dir, 'hosts_%s.yaml' % os.getenv('BTFLY_ENV'))
+            if not os.path.isfile(path):
+                #self._log.warn("%s doesn't exist." % path)
+                path = None
+        if not path:
+            path = os.path.join(conf_dir, 'hosts.yaml')
+        return path

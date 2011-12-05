@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import with_statement
+#from __future__ import with_statement
 import copy
 import re
 from btfly.utils import create_logger
@@ -33,7 +33,10 @@ class ConfLoader(object):
     def load_file(self, file):
         if not file:
             raise ValueError("file path is empty.")
-        f = open(file)
+        try:
+            f = open(file)
+        except IOError, (strerror):
+            raise IOError("Cannot read a configuration file '%s'. (%s)" % (file, strerror))
         try:
             return self.load('\n'.join(f.readlines()))
         finally:

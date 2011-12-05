@@ -1,0 +1,6 @@
+statuses:
+  - active
+  - troubeled
+  - out
+  - dead
+# no environments -> ok

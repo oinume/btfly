@@ -48,6 +48,13 @@ def test_02_validate_environments():
     eq_(e.message, "Attribute 'environments' must be a list.", "validate > environments > message")
     eq_(e.line, 5, "validate > environments > line")
 
+def test_03_validate_no_environments():
+    conf_file = os.path.join(TESTS_DIR, 'no_environments_conf.yaml')
+    hosts_manager = create_invalid_hosts_manager(conf_file, valid_hosts_conf_file)
+    errors = hosts_manager.validate(conf_file, valid_hosts_conf_file)
+    log.debug("errors = %s" % (errors))
+    eq_(len(errors), 0, "validate > environments > no environments")
+
 def test_03_validate_hosts():
     invalid_hosts_conf_file = os.path.join(TESTS_DIR, 'invalid_03_hosts.yaml')
     hosts_manager = create_invalid_hosts_manager(valid_conf_file, invalid_hosts_conf_file)

@@ -1,3 +1,3 @@
 nosetests -vsd --with-coverage --cover-erase --cover-html \
- --cover-package=btfly.* --rednose \
+ --cover-package=btfly.* \
  tests/internal/

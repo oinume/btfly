@@ -169,6 +169,7 @@ class HostsManager(object):
             # we cannot continue process, so return errors
             return errors
 
+        host_names = [] # For checking a host name is unique.
         for host in hosts:
             ### host required dict
             if type(host).__name__ != 'dict':
@@ -221,6 +222,15 @@ class HostsManager(object):
                      hosts_conf_file,
                      self._error_line(host_name_regexp, hosts_conf_file)
                 ))
+            
+            if host_name in host_names:
+                errors.append(ConfParseError(
+                     "Duplicated host.name '%s'." % (host_name),
+                     hosts_conf_file,
+                     self._error_line(host_name_regexp, hosts_conf_file)
+                ))
+            host_names.append(host_name)
+
         # Returns all found errors
         return errors
 

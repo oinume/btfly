@@ -13,6 +13,12 @@
 p -----------------------
 *  hosts.yaml作成(Dev,Stg,Prd)
 *  ディプロイスクリプト作成(Personal Dev)
+** functions.sh
+*** check_run_user()
+** environments.sh
+*** REPOS_URL
+** xxx-release
+** xxx-release/conf/{conf.yaml,hosts_dev.yaml}
 *  ディプロイスクリプト作成(Dev)
 *  maven repo登録スクリプト作成
 *  ディプロイスクリプト作成(Stg)

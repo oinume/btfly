@@ -61,9 +61,6 @@ class Main(object):
         self._home_dir = home_dir
         self._file = file
 
-        # TODO: プラグインをロードするタイミングとparse_args()を呼ぶ順番どうするか決める
-        # plugin_dirsはconf.get()で決定される(confじゃなくて環境変数BTFLY_PLUGIN_PATHを定義するか？)
-        # (os.pathsepつかう)
         plugin_manager = PluginManager(log, parser)
         # load tasks
         plugin_manager.load_plugins(self.plugin_dirs(home_dir))
@@ -141,7 +138,6 @@ class Main(object):
             for path in plugin_path.split(os.pathsep):
                 if os.path.isdir(path):
                     plugin_dirs.append(path)
-                    self._log.debug("Appended plugin path '%s'." % (path))
                 else:
                     self._log.warn("Plugin path '%s' not found. Ignored." % path)
         plugin_dirs.append(os.path.join(home_dir, 'plugins'))

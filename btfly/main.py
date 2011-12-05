@@ -54,6 +54,10 @@ class Main(object):
             '-f', '--field', help='Specify a field.'
         )
         parser.add_argument(
+            '-o', '--output-file', type=argparse.FileType('w'),
+            help='Specify a file path to output. Default behavior is outputing to stdout.'
+        )
+        parser.add_argument(
             '-D', '--debug', action='store_true', default=False,
             help='Enable debug output.',
         )
@@ -91,7 +95,7 @@ class Main(object):
                 print >> sys.stderr, e.message
             raise RuntimeError("There are some errors in configuration files.")
 
-    def run(self, out=sys.stdout):
+    def run(self, out=None):
         # load tasks
         self._log.debug("options = %s" % (self._options))
         task = self._plugin_manager.task(self._options.get('task'))
@@ -106,7 +110,21 @@ class Main(object):
             field
         )
         output = self._args.func(context)
-        print >>out, output
+        should_close = False
+        if out is None:
+            out = self._options.get('output_file')
+            if out is None:
+                out = sys.stdout
+            else:
+                should_close = True
+        try:
+            print >>out, output
+        finally:
+            if should_close:
+                try:
+                    out.close()
+                except IOError:
+                    pass
 
 # eval `BTFLY_ENV=production btfly --roles web --field ip env`
 # --> btfly_hosts=(127.0.0.1 192.168.1.2)

@@ -25,7 +25,7 @@ def create_invalid_hosts_manager(conf_file, hosts_conf_file):
     )
 
 def test_00_validate_statuses():
-    conf_file = os.path.join(TESTS_DIR, 'invalid_00_conf.yaml')
+    conf_file = os.path.join(TESTS_DIR, 'invalid_no_statuses.yaml')
     hosts_manager = create_invalid_hosts_manager(conf_file, valid_hosts_conf_file)
     errors = hosts_manager.validate(conf_file, valid_hosts_conf_file)
     e = errors[0]
@@ -33,7 +33,7 @@ def test_00_validate_statuses():
     eq_(e.message, "Attribute 'statuses' is required.", "validate > statuses > message")
 
 def test_01_validate_statuses():
-    conf_file = os.path.join(TESTS_DIR, 'invalid_01_conf.yaml')
+    conf_file = os.path.join(TESTS_DIR, 'invalid_statuses_not_list.yaml')
     hosts_manager = create_invalid_hosts_manager(conf_file, valid_hosts_conf_file)
     errors = hosts_manager.validate(conf_file, valid_hosts_conf_file)
     e = errors[0]
@@ -52,7 +52,6 @@ def test_03_validate_no_environments():
     conf_file = os.path.join(TESTS_DIR, 'no_environments_conf.yaml')
     hosts_manager = create_invalid_hosts_manager(conf_file, valid_hosts_conf_file)
     errors = hosts_manager.validate(conf_file, valid_hosts_conf_file)
-    log.debug("errors = %s" % (errors))
     eq_(len(errors), 0, "validate > environments > no environments")
 
 def test_03_validate_hosts():

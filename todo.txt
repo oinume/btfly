@@ -1,26 +1,15 @@
 * 網羅的なテスト(coverageで)
-** テスト関数をまとめる
-** btfly.mainのテスト(デフォルトのプラグインのテスト)
-* validation tests
-** role, statusがユニークか
-* --output=file 実装
-* --roles で指定されたものが存在するか
-* --statuses で指定されたものが存在するか
 * ソース内のTODO解決
 * btfly check_conf 実装
 * sphinxでドキュメント書く
 * パッケージングの準備
 p -----------------------
-*  hosts.yaml作成(Dev,Stg,Prd)
-*  ディプロイスクリプト作成(Personal Dev)
-** functions.sh
-*** check_run_user()
-** environments.sh
-*** REPOS_URL
-** xxx-release
-** xxx-release/conf/{conf.yaml,hosts_dev.yaml}
-*  ディプロイスクリプト作成(Dev)
-*  maven repo登録スクリプト作成
-*  ディプロイスクリプト作成(Stg)
-*  Flashタグ切りスクリプト作成
-*  ディプロイスクリプト作成(Prd)
+* hosts.yaml作成(Dev,Stg,Prd)
+* ディプロイスクリプト作成(Personal Dev)
+** xxx_release
+** xxx_release/conf/{conf.yaml,hosts_dev.yaml}
+* ディプロイスクリプト作成(Dev)
+* maven repo登録スクリプト作成
+* ディプロイスクリプト作成(Stg)
+* Flashタグ切りスクリプト作成
+* ディプロイスクリプト作成(Prd)

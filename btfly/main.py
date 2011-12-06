@@ -75,13 +75,6 @@ class Main(object):
         self._options = self._args.__dict__
         self._plugin_manager = plugin_manager
 
-        if self._options.get('statuses'):
-            self._options['statuses_list'] = \
-                [ s.strip() for s in self._options.get('statuses').split(',') ]
-        if self._options.get('roles'):
-            self._options['roles_list'] = \
-                [ s.strip() for s in self._options.get('roles').split(',') ]
-
         # Load configuration
         conf = load_conf(self._options['conf'])
         hosts_conf = load_conf(self._options['hosts_conf'])
@@ -94,6 +87,36 @@ class Main(object):
             for e in validation_errors:
                 print >> sys.stderr, e.message
             raise RuntimeError("There are some errors in configuration files.")
+
+        error = False
+        if self._options.get('statuses'):
+            # Check given --statuses are defined.
+            conf_statuses = conf.get('statuses')
+            statuses_list = [ s.strip() for s in self._options.get('statuses').split(',') ]
+            for s in statuses_list:
+                if s in conf_statuses:
+                    statuses_list.append(s)
+                else:
+                    print >>sys.stderr, "status '%s' is not defined in configuration." % (s)
+                    error = True
+            self._options['statuses_list'] = statuses_list
+        if error:
+            raise ValueError("Option --statuses error")
+
+        if self._options.get('roles'):
+            # Check given --statuses are defined.
+            conf_roles = conf.get('roles')
+            roles_list = [ s.strip() for s in self._options.get('roles').split(',') ]
+            for r in roles_list:
+                if r in conf_roles:
+                    roles_list.append(r)
+                else:
+                    print >>sys.stderr, "role '%s' is not defined in configuration." % (s)
+                    error = True
+            self._options['roles_list'] = roles_list
+        if error:
+            raise ValueError("Option --roles error")
+
 
     def run(self, out=None):
         # load tasks

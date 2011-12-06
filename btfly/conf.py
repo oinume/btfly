@@ -126,7 +126,19 @@ class HostsManager(object):
             errors.append(ConfParseError("Attribute 'statuses' is required.", conf_file, 0))
         elif type(statuses).__name__ != 'list':
             errors.append(self._attribute_must_be_list_error('statuses', conf_file))
-        self._log.debug("statuses = %s" % (statuses))
+        else:
+            # Check status duplication
+            unique_statuses = []
+            for status in statuses:
+                if status in unique_statuses:
+                    errors.append(ConfParseError(
+                        "Duplicated status '%s'" % (status),
+                        conf_file,
+                        self._error_line(re.compile(r'^statuses\s*:'), conf_file)
+                    ))
+                else:
+                    unique_statuses.append(status)
+            self._log.debug("statuses = %s" % (statuses))
 
         ### environments: optional list->dict->list
         environments = self.conf.get('environments')
@@ -146,7 +158,16 @@ class HostsManager(object):
             if type(roles).__name__ == 'list':
                 for role in roles:
                     if type(role).__name__ == 'dict':
-                        role_names.append(role.keys()[0])
+                        role_name = role.keys()[0]
+                        if role_name in role_names:
+                            # Check role duplication
+                            errors.append(ConfParseError(
+                                "Duplicated role '%s'" % (role_name),
+                                conf_file,
+                                self._error_line(re.compile(r'^roles\s*:'), conf_file)
+                            ))
+                        else:
+                            role_names.append(role_name)
                     else:
                         errors.append(ConfParseError(
                             "A role entry must be a hash.",

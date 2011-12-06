@@ -1,0 +1,8 @@
+# statuses is not list
+statuses: [ 'active', 'troubled', 'out', 'dead' ]
+environments:
+  - { production: [ 'production', 'product', 'prd' ] }
+roles:
+  - web: {}
+  - master_db: {}
+  - web: {}

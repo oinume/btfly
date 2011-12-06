@@ -1,6 +1,6 @@
 * 網羅的なテスト(coverageで)
 ** テスト関数をまとめる
-** btfly.mainのテスト
+** btfly.mainのテスト(デフォルトのプラグインのテスト)
 * validation tests
 ** role, statusがユニークか
 * --output=file 実装

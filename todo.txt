@@ -8,7 +8,6 @@
 * --statuses で指定されたものが存在するか
 * ソース内のTODO解決
 * btfly check_conf 実装
-* BTFLY_PLUGIN_PATH=plugins を定義できるようにする
 * sphinxでドキュメント書く
 * パッケージングの準備
 p -----------------------

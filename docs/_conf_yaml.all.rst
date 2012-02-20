@@ -1,0 +1,16 @@
+conf.yaml::
+
+  statuses:
+    - active
+    - troubled
+    - out
+    - dead
+  environments:
+    - { production: [ 'production', 'product', 'prd' ] }
+    - { staging: [ 'staging', 'stg', 'test' ] }
+    - { development: [ 'development', 'dev' ] }
+  roles:
+    - web: { description: 'web server' }
+    - master_db: { description: 'master database' }
+    - slave_db:  { description: 'slave database' }
+    - memcached: { description: 'memcached' }

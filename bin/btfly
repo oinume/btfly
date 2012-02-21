@@ -1,13 +1,24 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+import os
 import sys
-import btfly_bootstrap
-# Add BTFLY_HOME, BTFLY_HOME/lib to sys.path
-parent, bin_dir = btfly_bootstrap.set_lib_path(__file__)
 
-#print sys.path
+has_bootstrap = False
+try:
+    import bootstrap
+    # Add BTFLY_HOME, BTFLY_HOME/btfly to sys.path
+    parent, bin_dir = bootstrap.set_lib_path(__file__)
+    has_bootstrap = True
+except:
+    pass
+
 import btfly.main
 
 if __name__ == '__main__':
-    sys.exit(btfly.main.Main(__file__, parent).run())
+    home_dir = None
+    if has_bootstrap:
+        home_dir = parent
+    else:
+        home_dir = os.getcwd()
+    sys.exit(btfly.main.Main(__file__, home_dir).run())

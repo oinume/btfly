@@ -44,7 +44,7 @@ btflyはYAMLまたはJSON形式のファイルにサーバの情報を記述し�
 
 --statuses ::
 
-  $ eval `btfly env --statuses active
+  $ eval `btfly env --statuses active`
   $ echo $BTFLY_HOSTS
   >>> web01 db01 db02
 
@@ -75,6 +75,7 @@ Contents:
    :maxdepth: 2
 
    install
+   tutorial
    btfly
 
 Indices and tables

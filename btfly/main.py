@@ -41,7 +41,7 @@ class Main(object):
         )
         default_hosts_conf_path = self.default_hosts_conf_path(default_conf_dir)
         parser.add_argument(
-            '-H', '--hosts-conf', default=default_hosts_conf_path,
+            '-h', '--hosts-conf', default=default_hosts_conf_path,
             help='Hosts configuration file path. (default: %s)' % (default_hosts_conf_path)
         )
         parser.add_argument(

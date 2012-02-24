@@ -9,7 +9,7 @@ conf.yaml::
     - { production: [ 'production', 'product', 'prd' ] }
     - { staging: [ 'staging', 'stg', 'test' ] }
     - { development: [ 'development', 'dev' ] }
-  roles:
+  tags:
     - web: { description: 'web server' }
     - master_db: { description: 'master database' }
     - slave_db:  { description: 'slave database' }

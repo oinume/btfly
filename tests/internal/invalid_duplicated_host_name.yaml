@@ -1,4 +1,4 @@
-roles:
+tags:
   - web:
       description: 'web server'
   - master_db:
@@ -8,5 +8,5 @@ roles:
   - memcached:
       description: 'memcached'
 hosts:
-  - web01: { ip: '192.168.1.10', status: 'active', roles: [ 'web' ] } # duplicated host name
-  - web01: { ip: '192.168.1.10', status: 'active', roles: [ 'web' ] }
+  - web01: { ip: '192.168.1.10', status: 'active', tags: [ 'web' ] } # duplicated host name
+  - web01: { ip: '192.168.1.10', status: 'active', tags: [ 'web' ] }

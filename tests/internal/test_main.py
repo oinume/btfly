@@ -30,9 +30,9 @@ def test_03_run_status_not_defined():
     main.run(out)
 
 @raises(ValueError)
-def test_04_run_role_not_defined():
+def test_04_run_tag_not_defined():
     out = StringIO()
-    main = Main(__file__, HOME_DIR, "--roles=foobar env".split())
+    main = Main(__file__, HOME_DIR, "--tags=foobar env".split())
     main.run(out)
 
 def test_05_run_output_file():

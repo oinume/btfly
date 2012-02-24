@@ -3,5 +3,5 @@ statuses:
   - troubled
   - out
   - dead
-roles:
+tags:
   - [ 'description' ] # not hash

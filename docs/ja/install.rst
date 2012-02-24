@@ -14,7 +14,7 @@ btfly のインストール
 
 .. highlight:: bash
 
-btflyのパッケージは `pypi <http://pypi.python.org/pypi/tomahawk/>`_ にあるので、最も簡単にインストールするには pip または easy_install を使う。
+btflyのパッケージは `pypi <http://pypi.python.org/pypi/tomahawk/>`_ にあるので、最も簡単にインストールするには pip または easy_install を使う。 ::
 
   $ sudo pip install btfly
 

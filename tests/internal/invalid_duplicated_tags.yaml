@@ -2,7 +2,7 @@
 statuses: [ 'active', 'troubled', 'out', 'dead' ]
 environments:
   - { production: [ 'production', 'product', 'prd' ] }
-roles:
+tags:
   - web: {}
   - master_db: {}
   - web: {}

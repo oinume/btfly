@@ -15,7 +15,7 @@ statuses: [ 'active', 'troubled' ]
 environments:
   - { production: [ 'production', 'prd' ] }
   - { development: [ 'development', 'dev' ] }
-roles:
+tags:
   - web: { description: 'web server' }
   - memcached: { description: 'memcached' }
 """.strip())
@@ -26,7 +26,7 @@ roles:
             { 'production': [ 'production', 'prd' ] },
             { 'development': [ 'development', 'dev' ] },
         ],
-        'roles': [
+        'tags': [
             { 'web': { 'description': 'web server' } },
             { 'memcached': { 'description': 'memcached' } },
         ]
@@ -41,7 +41,7 @@ def test_02_load_json():
     { "production": [ "production", "prd" ] },
     { "development": [ "development", "dev" ] }
 ],
-"roles": [
+"tags": [
     { "web": { "description": "web server" } },
     { "memcached":  { "description": "memcached" } }
 ]
@@ -53,7 +53,7 @@ def test_02_load_json():
             { 'production': [ 'production', 'prd' ] },
             { 'development': [ 'development', 'dev' ] },
         ],
-        'roles': [
+        'tags': [
             { 'web': { 'description': 'web server' } },
             { 'memcached': { 'description': 'memcached' } },
         ]

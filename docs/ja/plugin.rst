@@ -1,44 +1,47 @@
-btfly のプラグイン機構
-======================
+.. highlight:: bash
+
+プラグインによる機能追加
+========================
 
 btfly のプラグインはPythonで実装することができる。
 btfly env などの標準で組み込まれているコマンドもこのプラグイン機構を使って実装されている。
 
-必要なもの
-----------
-
-* python >= 2.5
-* argparse
-* PyYaml
-* nose (ユニットテストを実行する際に必要)
-
 実装方法
 --------
 
-custom_hosts.py
+ここでは、custom_hosts という名前のプラグインを作成する。
+custom_hosts.py というファイル名で下記のコードをコピーして作成する。この custom_hosts.py は
 
-.. code-block:: python
+* /etc/btfly/plugins
+* $BTFLY_HOME/plugins
+* 環境変数 BTFLY_PLUGIN_PATH で指定したディレクトリ
 
-    # custom_hosts.py
-    class CustomHosts(BaseTask):
-        def execute(self, context):
-            hosts = context.hosts_manager.hosts(
-                roles=context.options.get('roles'),
-                statuses=context.options.get('statuses'),
-            )
-            
-            s = "# Generated with btfly\n"
-            for host in hosts:
-                name = host.keys()[0] # TODO: host must be object
-                attributes = host.values()[0]
-                s += "%s %s\n" % (attributes.get('ip'), name)
-            return s.rstrip()
-    
-    def register(manager):
-        """
-        This function is called when this plugin is loaded.
-        """
-        manager.register_task(CSV('csv', "output as CSV."))
-        manager.register_task(Env('env', "output as sh environment."))
-        manager.register_task(Hosts('hosts', "output as /etc/hosts format."))
+のいずれかに配置することで、プラグインとして認識される。
+
+.. include:: ../_plugin_sample.all.rst
+
+プラグインは下記のルールにのっとって実装されている必要がある。
+
+#. btfly.task.BaseTask クラスを継承する
+#. execute メソッドをオーバライドする
+#. プラグインファイル内に regsiter 関数を作成し、manager.register_task を呼び出す。このメソッドの引数は以下。
+  * btfly コマンドから呼び出すコマンド名
+  * プラグインの説明
+
+
+プラグインの実行
+----------------
+それでは、作成した custom_hosts プラグインを実行してみよう。 ::
+
+  $ btfly custom_hosts
+
+として実行し、 下記が出力されればプラグインはうまく動作している。 ::
+
+  # custom_hosts plugin for btfly
+  127.0.0.1    localhost.localdomain localhost
+  ::1          localhost.localdomain localhost
+  192.168.1.10 web01
+  192.168.1.50 db01
+  192.168.1.60 db02
+  192.168.1.61 db03
 

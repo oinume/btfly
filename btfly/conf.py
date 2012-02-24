@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-#from __future__ import with_statement
+
 import copy
 import re
 from btfly.utils import create_logger
@@ -95,11 +95,11 @@ class ConfParseError(Exception):
         return self.__str__()
 
 class Host(object):
-    def __init__(self, name, ip, status, roles):
+    def __init__(self, name, ip, status, tags):
         self._name = name
         self._ip = ip
         self._status = status
-        self._roles = roles
+        self._tags = tags
 
     @property
     def name(self): return self._name
@@ -111,7 +111,7 @@ class Host(object):
     def status(self): return self._status
 
     @property
-    def roles(self): return self._roles # TODO: make this readonly
+    def tags(self): return self._tags # TODO: make this readonly
 
 
 DEFAULT_ENVIRONMENTS = [
@@ -171,35 +171,35 @@ class HostsManager(object):
             self.conf['environments'] = environments
         self._log.debug("environments = %s" % (environments))
 
-        ### roles: required list->dict
-        roles = self.conf.get('roles') or [] # Contains role dict
-        role_names = [] # Contains just role names
-        if roles:
-            if type(roles).__name__ == 'list':
-                for role in roles:
-                    if type(role).__name__ == 'dict':
-                        role_name = role.keys()[0]
-                        if role_name in role_names:
-                            # Check role duplication
+        ### tags: required list->dict
+        tags = self.conf.get('tags') or [] # Contains tag dict
+        tag_names = [] # Contains just tag names
+        if tags:
+            if type(tags).__name__ == 'list':
+                for tag in tags:
+                    if type(tag).__name__ == 'dict':
+                        tag_name = tag.keys()[0]
+                        if tag_name in tag_names:
+                            # Check tag duplication
                             errors.append(ConfParseError(
-                                "Duplicated role '%s'" % (role_name),
+                                "Duplicated tag '%s'" % (tag_name),
                                 conf_file,
-                                self._error_line(re.compile(r'^roles\s*:'), conf_file)
+                                self._error_line(re.compile(r'^tags\s*:'), conf_file)
                             ))
                         else:
-                            role_names.append(role_name)
+                            tag_names.append(tag_name)
                     else:
                         errors.append(ConfParseError(
-                            "A role entry must be a hash.",
+                            "A tag entry must be a hash.",
                             hosts_conf_file,
-                            self._error_line(re.compile(r'^roles\s*:'), conf_file)
+                            self._error_line(re.compile(r'^tags\s*:'), conf_file)
                         ))
             else:
-                errors.append(self._attribute_must_be_list_error('roles', conf_file))
+                errors.append(self._attribute_must_be_list_error('tags', conf_file))
         else:
-            # Set default roles
-            self.hosts_conf['roles'] = []
-        self._log.debug("role_names = %s" % (role_names))
+            # Set default tags
+            self.hosts_conf['tags'] = []
+        self._log.debug("tag_names = %s" % (tag_names))
 
         ### hosts: required
         hosts = self.hosts_conf.get('hosts')
@@ -246,7 +246,7 @@ class HostsManager(object):
 
             # Check required attributes is defined.
             attribute_required_error = False
-            for attribute in ('ip', 'status', 'roles'):
+            for attribute in ('ip', 'status', 'tags'):
                 if attrs.get(attribute) is None:
                     errors.append(ConfParseError(
                         "Attribute '%s' is required for host '%s'" % (attribute, host_name),
@@ -266,20 +266,20 @@ class HostsManager(object):
                      self._error_line(host_name_regexp, hosts_conf_file)
                 ))
             
-            host_roles = attrs.get('roles')
-            ### host roles: required list
-            if type(host_roles).__name__ != 'list':
+            host_tags = attrs.get('tags')
+            ### host tags: required list
+            if type(host_tags).__name__ != 'list':
                 errors.append(ConfParseError(
-                    "Invalid type of roles for host '%s'" % (host_name),
+                    "Invalid type of tags for host '%s'" % (host_name),
                     hosts_conf_file,
                     self._error_line(host_name_regexp, hosts_conf_file)
                 ))
                 continue
             
-            for host_role in host_roles:
-                if not host_role in role_names:
+            for host_tag in host_tags:
+                if not host_tag in tag_names:
                     errors.append(ConfParseError(
-                        "Invalid role '%s' for host '%s'" % (host_role, host_name),
+                        "Invalid tag '%s' for host '%s'" % (host_tag, host_name),
                         hosts_conf_file,
                         self._error_line(host_name_regexp, hosts_conf_file)
                     ))
@@ -323,20 +323,20 @@ class HostsManager(object):
 
     def hosts(self, **kwargs):
         hosts = self._hosts_conf.get('hosts')
-        target_roles = kwargs.get('roles')
+        target_tags = kwargs.get('tags')
         target_statuses = kwargs.get('statuses')
-        values, values_for_roles, values_for_statuses = [], [], []
+        values, values_for_tags, values_for_statuses = [], [], []
         for host in hosts:
             name = host.keys()[0]
             attributes = host.values()[0]
-            roles = attributes.get('roles')
+            tags = attributes.get('tags')
             status = attributes.get('status')
 
-            # collect host names with specified roles
-            if target_roles:
-                for target_role in target_roles:
-                    if target_role in roles:
-                        values_for_roles.append(name)
+            # collect host names with specified tags
+            if target_tags:
+                for target_tag in target_tags:
+                    if target_tag in tags:
+                        values_for_tags.append(name)
             # collect host names with specified statuses
             if target_statuses:
                 if status in target_statuses:
@@ -345,8 +345,8 @@ class HostsManager(object):
             values.append(name)
         
         target_host_names = self.determine_values(
-            target_roles, target_statuses,
-            values, values_for_roles, values_for_statuses
+            target_tags, target_statuses,
+            values, values_for_tags, values_for_statuses
         )
         target_hosts = []
         for host in hosts:
@@ -354,17 +354,17 @@ class HostsManager(object):
             if name in target_host_names:
                 a = host.values()[0]
                 target_hosts.append(Host(
-                    name, a.get('ip'), a.get('status'), a.get('roles')
+                    name, a.get('ip'), a.get('status'), a.get('tags')
                 ))
         return target_hosts
 
-    def determine_values(self, target_roles, target_statuses,
-                         values, values_for_roles, values_for_statuses):
-        if target_roles and target_statuses:
-            return list(set(values_for_roles) & set(values_for_statuses))
-        elif target_roles and not target_statuses:
-            return values_for_roles
-        elif not target_roles and target_statuses:
+    def determine_values(self, target_tags, target_statuses,
+                         values, values_for_tags, values_for_statuses):
+        if target_tags and target_statuses:
+            return list(set(values_for_tags) & set(values_for_statuses))
+        elif target_tags and not target_statuses:
+            return values_for_tags
+        elif not target_tags and target_statuses:
             return values_for_statuses
         else:
             return values

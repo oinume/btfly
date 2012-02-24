@@ -1,3 +1,5 @@
+* primary_ip, ips: [ ... ]
+* roles -> tagsに置き換え
 * 網羅的なテスト(coverageで)
 * ソース内のTODO解決
 * btfly check_conf 実装

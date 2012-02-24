@@ -61,32 +61,32 @@ def test_01_validate_environments():
     eq_(len(errors), 0, "validate > environments > no environments")
 
 
-def test_02_validate_roles():
-    invalid_conf_file = os.path.join(TESTS_DIR, 'invalid_roles_not_list.yaml')
+def test_02_validate_tags():
+    invalid_conf_file = os.path.join(TESTS_DIR, 'invalid_tags_not_list.yaml')
     hosts_manager = create_invalid_hosts_manager(
         invalid_conf_file,
         valid_hosts_conf_file
     )
     errors = hosts_manager.validate(invalid_conf_file, valid_hosts_conf_file)
     e = errors[0]
-    eq_(e.message, "Attribute 'roles' must be a list.", "validate > roles > message")
-    eq_(e.line, 7, "validate > roles > line")
+    eq_(e.message, "Attribute 'tags' must be a list.", "validate > tags > message")
+    eq_(e.line, 7, "validate > tags > line")
 
-    invalid_conf_file = os.path.join(TESTS_DIR, 'invalid_roles_entry_type.yaml')
+    invalid_conf_file = os.path.join(TESTS_DIR, 'invalid_tags_entry_type.yaml')
     hosts_manager = create_invalid_hosts_manager(
         invalid_conf_file,
         valid_hosts_conf_file
     )
     errors = hosts_manager.validate(invalid_conf_file, valid_hosts_conf_file)
     e = errors[0]
-    eq_(e.message, "A role entry must be a hash.", "validate > roles > message")
-    eq_(e.line, 6, "validate > roles > line")
+    eq_(e.message, "A tag entry must be a hash.", "validate > tags > message")
+    eq_(e.line, 6, "validate > tags > line")
 
-    invalid_conf_file = os.path.join(TESTS_DIR, 'invalid_duplicated_roles.yaml')
+    invalid_conf_file = os.path.join(TESTS_DIR, 'invalid_duplicated_tags.yaml')
     hosts_manager = create_invalid_hosts_manager(invalid_conf_file, valid_hosts_conf_file)
     errors = hosts_manager.validate(invalid_conf_file, valid_hosts_conf_file)
     e = errors[0]
-    eq_(e.message, "Duplicated role 'web'", "validate > statuses > message")
+    eq_(e.message, "Duplicated tag 'web'", "validate > statuses > message")
     eq_(e.line, 5, "validate > statuses > line")
 
 
@@ -154,28 +154,28 @@ def test_11_validate_host_status_name():
     )
     #eq_(e.line, 11, "validate > host > attribute > line")
 
-def test_12_validate_host_roles_type():
-    invalid_hosts_conf_file = os.path.join(TESTS_DIR, 'invalid_host_roles_type.yaml')
+def test_12_validate_host_tags_type():
+    invalid_hosts_conf_file = os.path.join(TESTS_DIR, 'invalid_host_tags_type.yaml')
     hosts_manager = create_invalid_hosts_manager(valid_conf_file, invalid_hosts_conf_file)
     errors = hosts_manager.validate(valid_conf_file, invalid_hosts_conf_file)
     e = errors[0]
     eq_(
         e.message,
-        "Invalid type of roles for host 'web01'",
-        "validate > host > roles > message"
+        "Invalid type of tags for host 'web01'",
+        "validate > host > tags > message"
     )
-    eq_(len(errors), 2, "validate > host > roles > error count")
+    eq_(len(errors), 2, "validate > host > tags > error count")
     #eq_(e.line, 11, "validate > host > attribute > line")
 
-def test_13_validate_host_role_name():
-    invalid_hosts_conf_file = os.path.join(TESTS_DIR, 'invalid_host_role_name.yaml')
+def test_13_validate_host_tag_name():
+    invalid_hosts_conf_file = os.path.join(TESTS_DIR, 'invalid_host_tag_name.yaml')
     hosts_manager = create_invalid_hosts_manager(valid_conf_file, invalid_hosts_conf_file)
     errors = hosts_manager.validate(valid_conf_file, invalid_hosts_conf_file)
     e = errors[0]
     eq_(
         e.message,
-        "Invalid role 'no_role' for host 'web01'",
-        "validate > host > roles > message"
+        "Invalid tag 'no_tag' for host 'web01'",
+        "validate > host > tags > message"
     )
     #eq_(e.line, 11, "validate > host > attribute > line")
 
@@ -191,8 +191,8 @@ def test_20_host_names():
     )
     eq_(
         [ 'web03' ],
-        hosts_manager.host_names(roles=[ 'web', 'master_db' ], statuses=[ 'dead' ]),
-        "host_names > roles, statuses"
+        hosts_manager.host_names(tags=[ 'web', 'master_db' ], statuses=[ 'dead' ]),
+        "host_names > tags, statuses"
     )
 
 def test_30_ip_addresses():
@@ -201,13 +201,13 @@ def test_30_ip_addresses():
     hosts_manager = HostsManager(conf, hosts_conf, log)
     eq_(
         [ '192.168.1.110', '192.168.1.111', '192.168.1.112' ],
-        hosts_manager.ip_addresses(roles=[ 'slave_db' ]),
-        "ip_addresses > roles"
+        hosts_manager.ip_addresses(tags=[ 'slave_db' ]),
+        "ip_addresses > tags"
     )
 #    eq_(
 #        [ 'web03' ],
-#        hosts_manager.names(roles=[ 'web', 'master_db' ], statuses=[ 'dead' ]),
-#        "names (roles, statuses)"
+#        hosts_manager.names(tags=[ 'web', 'master_db' ], statuses=[ 'dead' ]),
+#        "names (tags, statuses)"
 #    )
-    #print hosts_manager.names(roles=[ 'web', 'master_db' ], statuses=[ 'dead' ])
+    #print hosts_manager.names(tags=[ 'web', 'master_db' ], statuses=[ 'dead' ])
 

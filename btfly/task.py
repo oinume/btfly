@@ -41,7 +41,7 @@ class BaseTask(object):
         hosts_manager = context.hosts_manager
         values = None
         kwargs = {
-            'roles': context.options.get('roles'),
+            'tags': context.options.get('tags'),
             'statuses': context.options.get('statuses'),
         }
         if context.field == 'name':

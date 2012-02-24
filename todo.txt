@@ -1,11 +1,7 @@
 * primary_ip, ips: [ ... ]
-* roles -> tagsに置き換え
 * 網羅的なテスト(coverageで)
 * ソース内のTODO解決
 * btfly check_conf 実装
-* sphinxでドキュメント書く
-** tutorial
-** tutorial用のconf.yaml, hosts.yaml を作成
 ** btfly-quickstart 実装
 * パッケージングの準備
-
+* 実際に使ってみた例

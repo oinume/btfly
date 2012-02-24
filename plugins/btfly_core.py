@@ -10,7 +10,7 @@ class Env(BaseTask):
     def add_options(self, parser):
         parser.add_argument(
             '-E', '--env-name', default='BTFLY_HOSTS',
-            help='Specify an environment name to output.'
+            help='Specify a name of environment variable to be output.'
         )
 
     def execute(self, context):
@@ -28,11 +28,9 @@ class Hosts(BaseTask):
             statuses=context.options.get('statuses'),
         )
         
-        s = "# Generated with btfly\n"
+        s = "# Generated with btfly\n" # TODO: line separator compatibility (set in conf.yaml ?)
         for host in hosts:
-            name = host.keys()[0] # TODO: host must be object
-            attributes = host.values()[0]
-            s += "%s %s\n" % (attributes.get('ip'), name)
+            s += "%s %s\n" % (host.ip, host.name)
         return s.rstrip()
 
 def register(manager):

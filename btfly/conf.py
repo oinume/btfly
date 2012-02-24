@@ -94,6 +94,26 @@ class ConfParseError(Exception):
     def __repr__(self):
         return self.__str__()
 
+class Host(object):
+    def __init__(self, name, ip, status, roles):
+        self._name = name
+        self._ip = ip
+        self._status = status
+        self._roles = roles
+
+    @property
+    def name(self): return self._name
+    
+    @property
+    def ip(self): return self._ip
+
+    @property
+    def status(self): return self._status
+
+    @property
+    def roles(self): return self._roles # TODO: make this readonly
+
+
 DEFAULT_ENVIRONMENTS = [
     { 'production' : [ 'production' ] },
     { 'staging'    : [ 'staging' ] },
@@ -295,11 +315,11 @@ class HostsManager(object):
 
     def host_names(self, **kwargs):
         # Return names
-        return [ host.keys()[0] for host in self.hosts(**kwargs) ]
+        return [ host.name for host in self.hosts(**kwargs) ]
 
     def ip_addresses(self, **kwargs):
         # Return ips
-        return [ host.values()[0].get('ip') for host in self.hosts(**kwargs) ]
+        return [ host.ip for host in self.hosts(**kwargs) ]
 
     def hosts(self, **kwargs):
         hosts = self._hosts_conf.get('hosts')
@@ -330,8 +350,12 @@ class HostsManager(object):
         )
         target_hosts = []
         for host in hosts:
-            if host.keys()[0] in target_host_names:
-                target_hosts.append(host)
+            name = host.keys()[0]
+            if name in target_host_names:
+                a = host.values()[0]
+                target_hosts.append(Host(
+                    name, a.get('ip'), a.get('status'), a.get('roles')
+                ))
         return target_hosts
 
     def determine_values(self, target_roles, target_statuses,

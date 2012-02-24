@@ -1,4 +1,4 @@
-How to install btfly
+btfly のインストール
 ====================
 
 必要なもの

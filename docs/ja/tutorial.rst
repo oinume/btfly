@@ -1,5 +1,5 @@
-btfly tutorial
-==============
+btfly チュートリアル
+====================
 
 .. highlight:: bash
 
@@ -15,21 +15,21 @@ btfly tutorial
   $ mkdir btfly_tutorial
   $ cd btfly_tutorial
   $ btfly-quickstart
-  
+
 confディレクトリが作成され、その配下にconf.yaml, hosts.yamlが生成される。
 
 
-conf.yamlの編集
----------------
-.. include:: ../_conf_yaml.all.rst
+conf.yaml
+---------
+:: ../_conf_yaml.all.rst
 
-* statuses - ステータスのリスト
+* statuses - ホストに設定するステータスのリスト
 * environments - 環境変数BTFLY_ENVで決定される環境のリスト。一般ユーザがこれを意識する必要はほぼない。
-* roles - ホストのロール(役割)のリスト
+* roles - ホストに設定するロール(役割)のリスト
 
 
-hosts.yamlの編集
-----------------
+hosts.yaml
+----------
 .. include:: ../_hosts_yaml.all.rst
 
 * ip - IPアドレス
@@ -51,6 +51,7 @@ btflyの実行
 
   $ eval `btfly env`
   $ for host in ${BTFLY_HOSTS[@]}; do ssh $host uptime; done
+
 
 条件をつける
 ^^^^^^^^^^^^
@@ -81,9 +82,9 @@ btflyの実行
 プラグインによる拡張
 ^^^^^^^^^^^^^^^^^^^^
 
-Pythonでプラグインを書くことが可能なので、btflyで管理しているホスト情報を利用して、特定のファイルのフォーマットを出力するプラグインを作成すれば、btflyをベースにしてMuninやNagiosなどの設定ファイルを出力することが可能である。
+Pythonでプラグインを書くことが可能なので、btflyで管理しているホスト情報を利用して、特定のファイルのフォーマットを出力するプラグインを作成すれば、btflyをベースにしてMuninの設定ファイルなどを出力することが可能である。
 
-詳細は :doc:`plugin <plugin>` を読んでね。
+詳細は :doc:`プラグイン <plugin>` を参照。
 
 
 最後に

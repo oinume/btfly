@@ -2,14 +2,8 @@
 * ソース内のTODO解決
 * btfly check_conf 実装
 * sphinxでドキュメント書く
+** tutorial
+** tutorial用のconf.yaml, hosts.yaml を作成
+** btfly-quickstart 実装
 * パッケージングの準備
-p -----------------------
-* hosts.yaml作成(Dev,Stg,Prd)
-* ディプロイスクリプト作成(Personal Dev)
-** xxx_release
-** xxx_release/conf/{conf.yaml,hosts_dev.yaml}
-* ディプロイスクリプト作成(Dev)
-* maven repo登録スクリプト作成
-* ディプロイスクリプト作成(Stg)
-* Flashタグ切りスクリプト作成
-* ディプロイスクリプト作成(Prd)
+

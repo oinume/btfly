@@ -20,16 +20,15 @@ btflyはYAMLまたはJSON形式のファイルにサーバの情報を記述し�
 
 まず上記の conf.yaml と hosts.yaml を conf ディレクトリに作成しておく。そして btfly コマンドを実行する ::
 
-  $ btfly env
+  $ btfly out
 
 これにより::
 
-  BTFLY_HOSTS=(web01 db01 db02 db03)
+  web01 db01 db02 db03
 
-が出力される。この出力をevalすることで、全てのサーバに ssh で uptime を実行することが可能になる。 ::
+が出力される。この出力を利用することで、全てのサーバに ssh で uptime を実行することが可能になる。 ::
 
-  $ eval `btfly env`
-  $ for host in ${BTFLY_HOSTS[@]}; do ssh $host uptime; done
+  $ for host in `btfly out`; do ssh $host uptime; done
 
 つまり、自分が管理するホスト情報を hosts.yaml に書いておくことで、そのホスト群に対してコマンドを発行するなどの連携が可能になる。また、独自プラグインを書くことで、ホスト群の情報をもとに /etc/hosts のファイルを生成することも可能である。
 
@@ -39,16 +38,14 @@ btflyはYAMLまたはJSON形式のファイルにサーバの情報を記述し�
 
 --tags ::
 
-  $ eval `btfly env --tags slave_db`
-  $ echo $BTFLY_HOSTS
-  >>> db02 db03
+  $ btfly --tags=db out
+  >>> db01 db02 db03
 
 とすることで --tags で指定したタグのホストのみを抽出することもできる。カンマ区切りで複数のタグを指定することも可能である。
 
 --statuses ::
 
-  $ eval `btfly env --statuses active`
-  $ echo $BTFLY_HOSTS
+  $ btfly --statuses=active out
   >>> web01 db01 db02
 
 とすれば status が active なホストだけを抽出できる。これにより「故障中のサーバは除外したい」ということも可能である。
@@ -58,9 +55,9 @@ btflyはYAMLまたはJSON形式のファイルにサーバの情報を記述し�
 
 Pythonでプラグインを書くことで ::
 
-  $ btfly your_plugin --your-option
+  $ btfly --your-plugin-option your_plugin
 
-のように呼び出すことができるので、例えば `Nagios <http://www.nagios.org>`_ の設定ファイルを生成するプラグインを作成することも可能である。
+のように呼び出すことができるので、例えば `Munin <http://munin-monitoring.org/>`_ の設定ファイルを生成するプラグインを作成することも可能である。
 
 まとめ
 ^^^^^^

@@ -41,16 +41,15 @@ btflyの実行
 -----------
 下記のように btfly コマンドを実行してみる。 ::
 
-  $ btfly env
+  $ btfly out
 
 これにより ::
 
-  BTFLY_HOSTS=(web01 db01 db02 db03)
+  web01 db01 db02 db03
 
-が出力される。この出力をevalすることで、全てのサーバに ssh で uptime を実行することが可能になる。 ::
+が出力される。この出力を利用することで、全てのサーバに ssh で uptime を実行することが可能になる。 ::
 
-  $ eval `btfly env`
-  $ for host in ${BTFLY_HOSTS[@]}; do ssh $host uptime; done
+  $ for host in `btfly out`; do ssh $host uptime; done
 
 
 条件をつける
@@ -58,22 +57,19 @@ btflyの実行
 
 --tags ::
 
-  $ eval `btfly env --tags slave_db`
-  $ echo $BTFLY_HOSTS
-  >>> db02 db03
+  $ btfly --tags=db out
+  >>> db01 db02 db03
 
 とすることで --tags で指定したタグのホストのみを抽出することもできる。
 
 カンマ区切りで複数のタグを指定することも可能である。 ::
 
-  $ eval `btfly env --tags master_db,slave_db`
-  $ echo $BTFLY_HOSTS
+  $ btfly --tags=master_db,slave_db out
   >>> db01 db02 db03
 
 --statuses ::
 
-  $ eval `btfly env --statuses active`
-  $ echo $BTFLY_HOSTS
+  $ btfly --statuses=active out
   >>> web01 db01 db02
 
 とすれば status が active なホストだけを抽出できる。これにより「故障中のサーバは除外したい」ということも可能である。

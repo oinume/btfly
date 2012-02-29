@@ -1,6 +1,11 @@
 * 網羅的なテスト(coverageで)
 * ソース内のTODO解決
 * btfly check_conf 実装
+* .を渡せないバグを調査する
+* hosts.yamlはBTFLY_ENVに応じて変える
+** conf_dev.yaml -> なかったら conf.yaml
+** hosts_personal.yaml, hosts_dev.yaml, hosts_product.yamlなど -> なかったら hosts.yamlをロード
+** confのディレクトリを渡せるように --conf-dir
 * sphinxでドキュメント書く
 * パッケージングの準備
 p -----------------------

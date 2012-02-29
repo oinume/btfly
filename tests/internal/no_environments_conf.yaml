@@ -4,7 +4,7 @@ statuses:
   - out
   - dead
 # no environments -> ok
-roles:
+tags:
   - web: { description: 'web server' }
   - master_db: { description: 'master database' }
   - slave_db: { description: 'slave database' }

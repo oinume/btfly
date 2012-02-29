@@ -1,11 +1,11 @@
 hosts:
 # web
-  - web01: { ip: '192.168.1.10', roles: [ 'web', 'memcached' ], status: 'active' }
-  - web02: { ip: '192.168.1.11', roles: [ 'web', 'memcached' ], status: 'active' }
-  - web03: { ip: '192.168.1.12', roles: [ 'web', 'memcached' ], status: 'dead' }
+  - web01: { ip: '192.168.1.10', tags: [ 'web', 'memcached' ], status: 'active' }
+  - web02: { ip: '192.168.1.11', tags: [ 'web', 'memcached' ], status: 'active' }
+  - web03: { ip: '192.168.1.12', tags: [ 'web', 'memcached' ], status: 'dead' }
 # master_db
-  - mdb01: { ip: '192.168.1.100', roles: [ 'master_db' ], status: 'active' }
+  - mdb01: { ip: '192.168.1.100', tags: [ 'master_db' ], status: 'active' }
 # slave_db
-  - sdb01: { ip: '192.168.1.110', roles: [ 'slave_db' ], status: 'active' }
-  - sdb02: { ip: '192.168.1.111', roles: [ 'slave_db' ], status: 'active' }
-  - sdb03: { ip: '192.168.1.112', roles: [ 'slave_db' ], status: 'out' }
+  - sdb01: { ip: '192.168.1.110', tags: [ 'slave_db' ], status: 'active' }
+  - sdb02: { ip: '192.168.1.111', tags: [ 'slave_db' ], status: 'active' }
+  - sdb03: { ip: '192.168.1.112', tags: [ 'slave_db' ], status: 'out' }

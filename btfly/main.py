@@ -29,6 +29,8 @@ class Main(object):
             log = create_logger(False)
         self._log = log
 
+        log.debug("PYTHON_PATH = " + str(sys.path))
+
         parser = argparse.ArgumentParser(
             prog = os.path.basename(file),
             description = "A micro host management program.",
@@ -41,14 +43,14 @@ class Main(object):
         )
         default_hosts_conf_path = self.default_hosts_conf_path(default_conf_dir)
         parser.add_argument(
-            '-H', '--hosts-conf', default=default_hosts_conf_path,
+            '-h', '--hosts-conf', default=default_hosts_conf_path,
             help='Hosts configuration file path. (default: %s)' % (default_hosts_conf_path)
         )
         parser.add_argument(
             '-s', '--statuses', help='Specify statues.'
         )
         parser.add_argument(
-            '-r', '--roles', help='Specify roles.'
+            '-t', '--tags', help='Specify tags.'
         )
         parser.add_argument(
             '-f', '--field', help='Specify a field.'
@@ -66,9 +68,9 @@ class Main(object):
         self._file = file
 
         plugin_manager = PluginManager(log, parser)
-        # load tasks
+        # Load plugins
         plugin_manager.load_plugins(self.plugin_dirs(home_dir))
-        log.debug("All plugins are loaded.")
+        log.debug("All plugins are registered.")
 
         self._arg_parser = parser
         self._args = parser.parse_args(commandline_args)
@@ -103,19 +105,20 @@ class Main(object):
         if error:
             raise ValueError("Option --statuses error")
 
-        if self._options.get('roles'):
-            # Check given --statuses are defined.
-            conf_roles = conf.get('roles')
-            roles_list = [ s.strip() for s in self._options.get('roles').split(',') ]
-            for r in roles_list:
-                if r in conf_roles:
-                    roles_list.append(r)
+        if self._options.get('tags'):
+            # Check given --tags are defined.
+            conf_tags = conf.get('tags')
+            tags_list = [ s.strip() for s in self._options.get('tags').split(',') ]
+            tags = []
+            for t in tags_list:
+                if t in [ conf_tag.keys()[0] for conf_tag in conf_tags ]:
+                    tags.append(t)
                 else:
-                    print >>sys.stderr, "role '%s' is not defined in configuration." % (s)
+                    print >>sys.stderr, "tag '%s' is not defined in configuration." % (s)
                     error = True
-            self._options['roles_list'] = roles_list
+            self._options['tags'] = tags
         if error:
-            raise ValueError("Option --roles error")
+            raise ValueError("Option --tags error")
 
 
     def run(self, out=None):
@@ -149,13 +152,13 @@ class Main(object):
                 except IOError:
                     pass
 
-# eval `BTFLY_ENV=production btfly --roles web --field ip env`
+# eval `BTFLY_ENV=production btfly --tags web --field ip env`
 # --> btfly_hosts=(127.0.0.1 192.168.1.2)
 # % btfly-foreach; do ssh $i uptime; done
 #
-# `BTFLY_ENV=production btfly --roles web --field ip csv`
+# `BTFLY_ENV=production btfly --tags web --field ip csv`
 # --> 127.0.0.1,192.168.1.2
-# % tomahawk -h `BTFLY_ENV=production btfly --roles web --field ip tomahawk_hosts` \
+# % tomahawk -h `BTFLY_ENV=production btfly --tags web --field ip tomahawk_hosts` \
 #  -p 4 -c -t 30 '/etc/init.d/httpd stop'
 #
 # btfly-rsync pigg_files /usr/local/pigg_files/
@@ -181,7 +184,11 @@ class Main(object):
                     plugin_dirs.append(path)
                 else:
                     self._log.warn("Plugin path '%s' not found. Ignored." % path)
-        plugin_dirs.append(os.path.join(home_dir, 'plugins'))
+        # Append default plugin pathes
+        for path in ( os.path.join(home_dir, 'plugins'), '/etc/btfly/plugins' ):
+            if os.path.isdir(path):
+                plugin_dirs.append(path)
+
         self._log.debug("plugin_dirs = %s" % plugin_dirs)
         return plugin_dirs
 

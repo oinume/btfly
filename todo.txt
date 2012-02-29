@@ -1,3 +1,4 @@
+* primary_ip, ips: [ ... ]
 * 網羅的なテスト(coverageで)
 * ソース内のTODO解決
 * btfly check_conf 実装
@@ -7,14 +8,6 @@
 ** hosts_personal.yaml, hosts_dev.yaml, hosts_product.yamlなど -> なかったら hosts.yamlをロード
 ** confのディレクトリを渡せるように --conf-dir
 * sphinxでドキュメント書く
+** btfly-quickstart 実装
 * パッケージングの準備
-p -----------------------
-* hosts.yaml作成(Dev,Stg,Prd)
-* ディプロイスクリプト作成(Personal Dev)
-** xxx_release
-** xxx_release/conf/{conf.yaml,hosts_dev.yaml}
-* ディプロイスクリプト作成(Dev)
-* maven repo登録スクリプト作成
-* ディプロイスクリプト作成(Stg)
-* Flashタグ切りスクリプト作成
-* ディプロイスクリプト作成(Prd)
+* 実際に使ってみた例

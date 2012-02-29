@@ -3,5 +3,5 @@ statuses:
   - troubled
   - out
   - dead
-# roles is not list
-roles: { a: b }
+# tags is not list
+tags: { a: b }

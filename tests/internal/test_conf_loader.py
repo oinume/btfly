@@ -1,11 +1,14 @@
 # -*- coding: utf-8 -*-
 import os
-from nose.tools import eq_, ok_, raises
+import pytest
+import utils
 
-TESTS_DIR = os.path.dirname(os.path.abspath(__file__))
+utils.append_home_to_path(__file__)
+
 from btfly.conf import load_conf, YAMLConfLoader, JSONConfLoader
 from btfly.utils import create_logger
 
+TESTS_DIR = os.path.dirname(os.path.abspath(__file__))
 log = create_logger(True)
 
 def test_01_load_yaml():
@@ -31,7 +34,7 @@ tags:
             { 'memcached': { 'description': 'memcached' } },
         ]
     }
-    eq_(expected, object, "YAMLConfLoader.load()")
+    assert expected == object, "YAMLConfLoader.load()"
 
 def test_02_load_json():
     loader = JSONConfLoader()
@@ -58,16 +61,16 @@ def test_02_load_json():
             { 'memcached': { 'description': 'memcached' } },
         ]
     }
-    eq_(expected, object, "JSONConfLoader.load()")
+    assert expected == object, "JSONConfLoader.load()"
 
 def test_03_load_conf():
     object = load_conf(os.path.join(TESTS_DIR, 'conf.yaml'))
-    ok_(object['statuses'], "load_conf")
+    assert object['statuses'], "load_conf"
 
-@raises(ValueError)
 def test_04_load_conf_error():
-    load_conf(os.path.join(TESTS_DIR, 'conf.ini'))
+    with pytest.raises(ValueError):
+        load_conf(os.path.join(TESTS_DIR, 'conf.ini'))
 
-@raises(ValueError)
 def test_05_load_conf_error():
-    load_conf(None, None)
+    with pytest.raises(ValueError):
+        load_conf(None, None)

@@ -11,3 +11,14 @@
 ** btfly-quickstart 実装
 * パッケージングの準備
 * 実際に使ってみた例
+
+設定ファイルをロードする順番
+
+/etc/btfly/conf.yaml
+bin/../conf/conf.yaml
+--conf で指定
+
+/etc/btfly/hosts.yaml
+bin/../conf/hosts.yaml
+--hosts-conf で指定
+

@@ -57,11 +57,10 @@ setup(
     ],
 #    test_suite = 'nose.collector',
 # TODO: data_files
-    #data_files=[ ('man/man1', [ "man/man1/pssh.1" ]) ],
-#      data_files=[('bitmaps', ['bm/b1.gif', 'bm/b2.gif']),
-#                  ('config', ['cfg/data.cfg']),
-#                  ('/etc/init.d', ['init-script'])]
-
+    data_files = [
+        ( 'etc', [ 'conf/*.*' ] ),
+        ( 'plugins', [ 'plugins/*.py' ] ),
+    ],
     classifiers = [
         'Development Status :: 4 - ' + __status__,
         'Environment :: Console',

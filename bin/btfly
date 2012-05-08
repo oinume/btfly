@@ -16,9 +16,12 @@ except:
 import btfly.main
 
 if __name__ == '__main__':
-    home_dir = None
+    conf_dir = None
+    dirs = [ '/etc/btfly/', os.path.join(parent, 'conf') ]
     if has_bootstrap:
-        home_dir = parent
+        conf_dir = os.path.join(parent, 'conf')
     else:
-        home_dir = os.getcwd()
-    sys.exit(btfly.main.Main(__file__, home_dir).run())
+        for dir in dirs:
+            if os.path.isdir(dir):
+                conf_dir = dir
+    sys.exit(btfly.main.Main(__file__, conf_dir).run())

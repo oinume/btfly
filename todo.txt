@@ -8,7 +8,6 @@
 ** hosts_personal.yaml, hosts_dev.yaml, hosts_product.yamlなど -> なかったら hosts.yamlをロード
 ** confのディレクトリを渡せるように --conf-dir
 * sphinxでドキュメント書く
-** btfly-quickstart 実装
 * パッケージングの準備
 * 実際に使ってみた例
 

@@ -11,16 +11,14 @@ from btfly.plugin_manager import PluginManager
 from btfly.task import BaseTask
 
 class Context(object):
-    def __init__(self, home_dir, options, hosts_manager, field):
-        self.home_dir = home_dir
+    def __init__(self, conf_dir, options, hosts_manager, field):
+        self.conf_dir = conf_dir
         self.options = options
         self.hosts_manager = hosts_manager
         self.field = field
 
 class Main(object):
-    def __init__(self, file, home_dir, commandline_args=sys.argv[1:]):
-        default_conf_dir = os.path.join(home_dir, 'conf')
-
+    def __init__(self, file, conf_dir, commandline_args=sys.argv[1:]):
         log = None
         env_debug = os.getenv('BTFLY_DEBUG') or '0'
         if env_debug == '1' or env_debug.lower() == 'true':
@@ -36,12 +34,12 @@ class Main(object):
             description = "A micro host management program.",
             conflict_handler = 'resolve'
         )
-        default_conf_path = os.path.join(default_conf_dir, 'conf.yaml')
+        default_conf_path = os.path.join(conf_dir, 'conf.yaml')
         parser.add_argument(
             '-c', '--conf', default=default_conf_path,
             help='Configuration file path. (default: %s)' % (default_conf_path)
         )
-        default_hosts_conf_path = self.default_hosts_conf_path(default_conf_dir)
+        default_hosts_conf_path = self.default_hosts_conf_path(conf_dir)
         parser.add_argument(
             '-h', '--hosts-conf', default=default_hosts_conf_path,
             help='Hosts configuration file path. (default: %s)' % (default_hosts_conf_path)
@@ -64,12 +62,12 @@ class Main(object):
             help='Enable debug output.',
         )
 
-        self._home_dir = home_dir
+        self._conf_dir = conf_dir
         self._file = file
 
         plugin_manager = PluginManager(log, parser)
         # Load plugins
-        plugin_manager.load_plugins(self.plugin_dirs(home_dir))
+        plugin_manager.load_plugins(self.plugin_dirs(conf_dir))
         log.debug("All plugins are registered.")
 
         self._arg_parser = parser
@@ -130,7 +128,7 @@ class Main(object):
 
         field = self._options.get('field') or 'name'
         context = Context(
-            self._home_dir,
+            self._conf_dir,
             self._options,
             self._hosts_manager,
             field
@@ -175,7 +173,7 @@ class Main(object):
             path = os.path.join(conf_dir, 'hosts.yaml')
         return path
 
-    def plugin_dirs(self, home_dir):
+    def plugin_dirs(self, conf_dir):
         plugin_dirs = []
         plugin_path = os.getenv('BTFLY_PLUGIN_PATH')
         if plugin_path:
@@ -185,10 +183,13 @@ class Main(object):
                 else:
                     self._log.warn("Plugin path '%s' not found. Ignored." % path)
         # Append default plugin pathes
-        for path in ( os.path.join(home_dir, 'plugins'), '/etc/btfly/plugins' ):
+        parent, dir = os.path.split(os.path.abspath(conf_dir))
+        for path in ( os.path.join(parent, 'plugins'), '/etc/btfly/plugins' ):
             if os.path.isdir(path):
                 plugin_dirs.append(path)
 
         self._log.debug("plugin_dirs = %s" % plugin_dirs)
+        if len(plugin_dirs) == 0:
+            raise ValueError("Cannot find any plugin directories.")
         return plugin_dirs
 

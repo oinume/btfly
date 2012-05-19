@@ -33,8 +33,7 @@ install_requires = [
     'PyYAML',
 ]
 
-v = sys.version_info
-if v[0] == 2 and v[1] < 7:
+if sys.version_info < (2, 7):
     install_requires.append('argparse')
 
 setup(

@@ -92,8 +92,9 @@ class Main(object):
         if self._options.get('statuses'):
             # Check given --statuses are defined.
             conf_statuses = conf.get('statuses')
-            statuses_list = [ s.strip() for s in self._options.get('statuses').split(',') ]
-            for s in statuses_list:
+            option_statuses_list = [ s.strip() for s in self._options.get('statuses').split(',') ]
+            statuses_list = []
+            for s in option_statuses_list:
                 if s in conf_statuses:
                     statuses_list.append(s)
                 else:

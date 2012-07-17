@@ -200,6 +200,7 @@ class HostsManager(object):
             # Set default tags
             self.hosts_conf['tags'] = []
         self._log.debug("tag_names = %s" % (tag_names))
+        self.hosts_conf['tags'] = tag_names
 
         ### hosts: required
         hosts = self.hosts_conf.get('hosts')
@@ -244,7 +245,7 @@ class HostsManager(object):
                 ))
             host_names.append(host_name)
 
-            # Check required attributes is defined.
+            # Check required attributes are defined.
             attribute_required_error = False
             for attribute in ('ip', 'status', 'tags'):
                 if attrs.get(attribute) is None:
@@ -320,6 +321,9 @@ class HostsManager(object):
     def ip_addresses(self, **kwargs):
         # Return ips
         return [ host.ip for host in self.hosts(**kwargs) ]
+
+    def all_tags(self, **kwargs):
+        return self._hosts_conf.get('tags')
 
     def hosts(self, **kwargs):
         hosts = self._hosts_conf.get('hosts')

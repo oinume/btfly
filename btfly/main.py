@@ -5,6 +5,7 @@ import argparse
 import os
 import sys
 
+from btfly import __version__
 from btfly.conf import load_conf, HostsManager
 from btfly.utils import create_logger
 from btfly.plugin_manager import PluginManager
@@ -60,6 +61,11 @@ class Main(object):
         parser.add_argument(
             '-D', '--debug', action='store_true', default=False,
             help='Enable debug output.',
+        )
+        parser.add_argument(
+            '--version', action='version', 
+            version='%(prog)s ' + __version__
+            + ' with Python ' + '.'.join(map(str, sys.version_info[0:3])),
         )
 
         self._conf_dir = conf_dir

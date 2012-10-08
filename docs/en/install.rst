@@ -4,7 +4,7 @@ How to install btfly
 Requirements
 ------------
 
-* python >= 2.5
+* python >= 2.6
 * argparse
 * PyYaml
 * nose (required when testing)
@@ -21,7 +21,6 @@ btfly distributions is in the `pypi <http://pypi.python.org/pypi/btfly/>`_, so t
 or ::
 
   $ sudo easy_install btfly
-
 
 Or you can use traditional way ::
 

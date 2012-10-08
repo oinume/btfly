@@ -43,23 +43,19 @@ setup(
     license = 'LGPL',
     author = __author__,
     author_email = __author_email__,
-    description = "Manage your servers in YAML or JSON.",
+    description = "Manage your servers with YAML or JSON.",
     long_description = get_long_description(),
     packages = [ 'btfly' ],
     scripts = [ os.path.join('bin', p) for p in [ 'btfly' ] ],
     zip_safe = False,
     platforms = 'unix',
     install_requires = install_requires,
-    tests_require = [
-        'mock',
-        'pytest',
-    ],
-#    test_suite = 'nose.collector',
+    tests_require = [ 'pytest', 'pytest-cov' ],
 # TODO: data_files
-    data_files = [
-        ( 'etc', [ 'conf/*.*' ] ),
-        ( 'plugins', [ 'plugins/*.py' ] ),
-    ],
+#    data_files = [
+#        ( 'etc', [ 'conf/*.*' ] ),
+#        ( 'plugins', [ 'plugins/*.py' ] ),
+#    ],
     classifiers = [
         'Development Status :: 4 - ' + __status__,
         'Environment :: Console',

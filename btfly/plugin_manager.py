@@ -41,8 +41,8 @@ class PluginManager(object):
         self._tasks[task.name] = task
         self._tasks_list.append(task)
 
-    def load_module(self, module_name,basepath):
-        f,n,d = imp.find_module(module_name,[basepath])
+    def load_module(self, module_name, basepath):
+        f, n, d = imp.find_module(module_name, [ basepath ])
         return imp.load_module(module_name,f,n,d)
 
     def load_plugins(self, base_dirs):
